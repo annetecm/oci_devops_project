@@ -1,23 +1,48 @@
-import { developers } from '../data/mockData';
+import { useState } from 'react';
+import { developers, sprints, sprintDevStats } from '../data/mockData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 export default function HoursWorkedChart() {
-  const maxHours = Math.max(...developers.map(d => d.hoursWorked));
+  const [selectedSprint, setSelectedSprint] = useState<string>('all');
+
+  const data = developers.map(dev => {
+    if (selectedSprint === 'all') {
+      return { name: dev.name, hoursWorked: dev.hoursWorked };
+    }
+    const stats = sprintDevStats.find(s => s.sprintId === selectedSprint && s.devId === dev.id);
+    return { name: dev.name, hoursWorked: stats?.hoursWorked ?? 0 };
+  });
+
+  const maxHours = Math.max(...data.map(d => d.hoursWorked), 1);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-      <h3 className="text-slate-900 mb-4">Hours Worked per Developer</h3>
-      <p className="text-sm text-slate-600 mb-6">Total hours worked this sprint</p>
+    <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
+      <h3 className="text-slate-900 mb-3">Hours Worked per Developer</h3>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm text-slate-500">Total hours worked this sprint</p>
+        <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+          <SelectTrigger size="sm" className="!w-[130px] text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="min-w-[130px]">
+            <SelectItem value="all">All Sprints</SelectItem>
+            {sprints.map(s => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <div className="space-y-6">
-        {developers.map((dev) => (
-          <div key={dev.id}>
-            <div className="flex items-center justify-between mb-2">
+      <div className="space-y-4">
+        {data.map((dev) => (
+          <div key={dev.name}>
+            <div className="flex items-center justify-between mb-1">
               <p className="text-sm text-slate-700">{dev.name}</p>
               <span className="text-xs text-slate-600">{dev.hoursWorked} hours</span>
             </div>
-            <div className="relative h-10 bg-slate-100 rounded-lg overflow-hidden">
+            <div className="relative h-8 bg-slate-100 rounded-lg overflow-hidden">
               <div
-                className="h-full bg-red-700 rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
+                className="h-full bg-blue-400/85 rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
                 style={{ width: `${(dev.hoursWorked / maxHours) * 100}%` }}
               >
                 <span className="text-white text-sm font-medium">{dev.hoursWorked}h</span>
@@ -27,8 +52,8 @@ export default function HoursWorkedChart() {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-slate-200">
-        <div className="w-3 h-3 rounded bg-red-700"></div>
+      <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-slate-200">
+        <div className="w-3 h-3 rounded bg-blue-400/85"></div>
         <span className="text-sm text-slate-600">Hours Worked</span>
       </div>
     </div>

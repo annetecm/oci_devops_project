@@ -3,14 +3,36 @@ import { CheckCircle2, Clock, ListTodo, AlertCircle, Folder } from 'lucide-react
 import Header from '../components/Header';
 import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
-import TeamOverview from '../components/TeamOverview';
 import TeamPerformanceChart from '../components/TeamPerformanceChart';
 import HoursWorkedChart from '../components/HoursWorkedChart';
-import { tasks, getStats } from '../data/mockData';
+import { tasks, developers, sprints, sprintDevStats, getStats } from '../data/mockData';
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
   const stats = getStats();
+
+  // Per-developer averages across all sprints
+  const devAvgTasks = developers.map((dev) => {
+    const devStats = sprintDevStats.filter((s) => s.devId === dev.id);
+    const avg = devStats.length > 0
+      ? devStats.reduce((sum, s) => sum + s.completedTasksCount, 0) / devStats.length
+      : 0;
+    return { name: dev.name, avg: avg.toFixed(1) };
+  });
+  const overallAvgTasks = (
+    devAvgTasks.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgTasks.length
+  ).toFixed(1);
+
+  const devAvgHours = developers.map((dev) => {
+    const devStats = sprintDevStats.filter((s) => s.devId === dev.id);
+    const avg = devStats.length > 0
+      ? devStats.reduce((sum, s) => sum + s.hoursWorked, 0) / devStats.length
+      : 0;
+    return { name: dev.name, avg: avg.toFixed(1) };
+  });
+  const overallAvgHours = (
+    devAvgHours.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgHours.length
+  ).toFixed(1);
 
   const handleTaskClick = (taskId: string) => {
     navigate(`/developer/task/${taskId}`);
@@ -25,9 +47,9 @@ export default function ManagerDashboard() {
         userInitials="JA"
       />
 
-      <main className="p-8">
+      <main className="p-6">
         {/* Stats Section */}
-        <div className="grid grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-5 gap-4 mb-5">
           <StatsCard
             title="Total Tasks"
             value={stats.total}
@@ -65,36 +87,58 @@ export default function ManagerDashboard() {
           />
         </div>
 
-        {/* Team Productivity Section */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <div className="col-span-3">
-            <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-              <h3 className="text-slate-900 mb-4">Sprint Progress</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-slate-50 rounded-lg">
-                  <p className="text-2xl text-slate-900 mb-1">
-                    {Math.round((stats.done / stats.total) * 100)}%
-                  </p>
-                  <p className="text-sm text-slate-600">Completion Rate</p>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <p className="text-2xl text-slate-900 mb-1">
-                    {stats.inProgress + stats.done}
-                  </p>
-                  <p className="text-sm text-slate-600">Active Tasks</p>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <p className="text-2xl text-slate-900 mb-1">6</p>
-                  <p className="text-sm text-slate-600">Days Remaining</p>
-                </div>
+        {/* Sprint Progress + Team Overview */}
+        <div className="bg-white rounded-xl p-4 shadow-md border border-slate-200 mb-5">
+          <h3 className="text-slate-900 mb-3">Sprint Progress</h3>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="text-center p-3 bg-slate-50 rounded-lg">
+              <p className="text-xl text-slate-900 mb-1">
+                {Math.round((stats.done / stats.total) * 100)}%
+              </p>
+              <p className="text-sm text-slate-600">Completion Rate</p>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <p className="text-xl text-slate-900 mb-1">6</p>
+              <p className="text-sm text-slate-600">Days Remaining</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {/* Avg Tasks per Developer */}
+            <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-slate-700">Avg Tasks / Sprint</p>
+                <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
+              </div>
+              <div className="space-y-1.5">
+                {devAvgTasks.map((dev) => (
+                  <div key={dev.name} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{dev.name}</span>
+                    <span className="text-sm text-slate-900">{dev.avg} tasks</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Avg Hours per Developer */}
+            <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-slate-700">Avg Hours / Sprint</p>
+                <span className="text-xs text-slate-500">Team avg: {overallAvgHours}h</span>
+              </div>
+              <div className="space-y-1.5">
+                {devAvgHours.map((dev) => (
+                  <div key={dev.name} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">{dev.name}</span>
+                    <span className="text-sm text-slate-900">{dev.avg}h</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-          <TeamOverview />
         </div>
 
         {/* Team Performance Charts */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-5">
           <TeamPerformanceChart />
           <HoursWorkedChart />
         </div>
