@@ -43,6 +43,50 @@ export const developers: Developer[] = [
   { id: 'dev4', name: 'David Kim', email: 'david.kim@company.com', avatar: 'DK', assignedTasksCount: 5, completedTasksCount: 3, workloadPercentage: 50, hoursWorked: 28 },
 ];
 
+export interface Sprint {
+  id: string;
+  name: string;
+}
+
+export interface SprintDeveloperStats {
+  sprintId: string;
+  devId: string;
+  assignedTasksCount: number;
+  completedTasksCount: number;
+  hoursWorked: number;
+}
+
+export const sprints: Sprint[] = [
+  { id: 'sprint-1', name: 'Sprint 1' },
+  { id: 'sprint-2', name: 'Sprint 2' },
+  { id: 'sprint-3', name: 'Sprint 3' },
+  { id: 'sprint-4', name: 'Sprint 4' },
+  { id: 'sprint-5', name: 'Sprint 5' },
+];
+
+export const sprintDevStats: SprintDeveloperStats[] = [
+  { sprintId: 'sprint-1', devId: 'dev1', assignedTasksCount: 3, completedTasksCount: 2, hoursWorked: 14 },
+  { sprintId: 'sprint-1', devId: 'dev2', assignedTasksCount: 2, completedTasksCount: 2, hoursWorked: 12 },
+  { sprintId: 'sprint-1', devId: 'dev3', assignedTasksCount: 3, completedTasksCount: 3, hoursWorked: 18 },
+  { sprintId: 'sprint-1', devId: 'dev4', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 10 },
+  { sprintId: 'sprint-2', devId: 'dev1', assignedTasksCount: 3, completedTasksCount: 2, hoursWorked: 16 },
+  { sprintId: 'sprint-2', devId: 'dev2', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 13 },
+  { sprintId: 'sprint-2', devId: 'dev3', assignedTasksCount: 2, completedTasksCount: 2, hoursWorked: 15 },
+  { sprintId: 'sprint-2', devId: 'dev4', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 9 },
+  { sprintId: 'sprint-3', devId: 'dev1', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 12 },
+  { sprintId: 'sprint-3', devId: 'dev2', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 10 },
+  { sprintId: 'sprint-3', devId: 'dev3', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 15 },
+  { sprintId: 'sprint-3', devId: 'dev4', assignedTasksCount: 1, completedTasksCount: 1, hoursWorked: 9 },
+  { sprintId: 'sprint-4', devId: 'dev1', assignedTasksCount: 2, completedTasksCount: 2, hoursWorked: 15 },
+  { sprintId: 'sprint-4', devId: 'dev2', assignedTasksCount: 3, completedTasksCount: 2, hoursWorked: 14 },
+  { sprintId: 'sprint-4', devId: 'dev3', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 12 },
+  { sprintId: 'sprint-4', devId: 'dev4', assignedTasksCount: 2, completedTasksCount: 2, hoursWorked: 11 },
+  { sprintId: 'sprint-5', devId: 'dev1', assignedTasksCount: 3, completedTasksCount: 1, hoursWorked: 10 },
+  { sprintId: 'sprint-5', devId: 'dev2', assignedTasksCount: 2, completedTasksCount: 1, hoursWorked: 8 },
+  { sprintId: 'sprint-5', devId: 'dev3', assignedTasksCount: 3, completedTasksCount: 2, hoursWorked: 16 },
+  { sprintId: 'sprint-5', devId: 'dev4', assignedTasksCount: 1, completedTasksCount: 0, hoursWorked: 6 },
+];
+
 export const tasks: Task[] = [
   { id: 'task-1', title: 'Implement user authentication system', description: 'Create a secure authentication system with JWT tokens, including login, registration, and password reset functionality.', status: 'in-progress', priority: 'high', assignedTo: 'dev1', dueDate: '2026-03-15', tags: ['Backend', 'Security', 'Authentication'], acceptanceCriteria: ['User can register with email and password','User can login with credentials','JWT tokens are generated and validated','Password reset flow works correctly','All endpoints are secured'], comments: [{ id: 'c1', author: 'Sarah Chen', content: 'Started working on the JWT implementation. Should have the basic structure ready by EOD.', timestamp: '2026-03-07T10:30:00Z' }, { id: 'c2', author: 'Project Manager', content: 'Great! Please make sure to include rate limiting for the login endpoint.', timestamp: '2026-03-07T11:15:00Z' }], attachments: ['auth-design.pdf'], createdAt: '2026-03-01T09:00:00Z', updatedAt: '2026-03-07T10:30:00Z' },
   { id: 'task-2', title: 'Design and implement database schema', description: 'Create comprehensive database schema for all application entities including users, projects, tasks, and relationships.', status: 'done', priority: 'high', assignedTo: 'dev2', dueDate: '2026-03-10', tags: ['Database','Backend','Architecture'], acceptanceCriteria: ['All tables are created with proper relationships','Indexes are added for performance','Migration scripts are documented','Schema is reviewed by team lead'], comments: [{ id: 'c3', author: 'Marcus Johnson', content: 'Database schema completed and reviewed. All migrations are in place.', timestamp: '2026-03-06T16:45:00Z' }], attachments: ['schema-diagram.png','migration-scripts.sql'], createdAt: '2026-02-28T09:00:00Z', updatedAt: '2026-03-06T16:45:00Z' },

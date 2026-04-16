@@ -1,48 +1,63 @@
-import { developers } from '../data/mockData';
+import { useState } from 'react';
+import { developers, sprints, sprintDevStats } from '../data/mockData';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 export default function TeamPerformanceChart() {
-  const maxTasks = Math.max(...developers.map(d => d.assignedTasksCount));
+  const [selectedSprint, setSelectedSprint] = useState<string>('all');
+
+  const data = developers.map(dev => {
+    if (selectedSprint === 'all') {
+      return { name: dev.name, assigned: dev.assignedTasksCount, completed: dev.completedTasksCount };
+    }
+    const stats = sprintDevStats.find(s => s.sprintId === selectedSprint && s.devId === dev.id);
+    return { name: dev.name, assigned: stats?.assignedTasksCount ?? 0, completed: stats?.completedTasksCount ?? 0 };
+  });
+
+  const maxTasks = Math.max(...data.map(d => d.assigned), 1);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-      <h3 className="text-slate-900 mb-4">Tasks Completed per Developer</h3>
-      <p className="text-sm text-slate-600 mb-6">Completed vs Total Assigned Tasks</p>
+    <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
+      <h3 className="text-slate-900 mb-3">Tasks Completed per Developer</h3>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm text-slate-500">Completed vs Total Assigned Tasks</p>
+        <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+          <SelectTrigger size="sm" className="!w-[130px] text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="min-w-[130px]">
+            <SelectItem value="all">All Sprints</SelectItem>
+            {sprints.map(s => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <div className="space-y-6">
-        {developers.map((dev) => (
-          <div key={dev.id}>
-            <div className="flex items-center justify-between mb-2">
+      <div className="space-y-4">
+        {data.map((dev) => (
+          <div key={dev.name}>
+            <div className="flex items-center justify-between mb-1">
               <p className="text-sm text-slate-700">{dev.name}</p>
               <span className="text-xs text-slate-600">
-                {dev.completedTasksCount}/{dev.assignedTasksCount} tasks
+                {dev.completed}/{dev.assigned} tasks
               </span>
             </div>
-            <div className="relative h-10 bg-slate-100 rounded-lg overflow-hidden">
-              {/* Total assigned tasks bar (background) */}
+            <div className="relative h-8 bg-slate-100 rounded-lg overflow-hidden">
               <div
-                className="absolute inset-y-0 left-0 bg-red-200 rounded-lg"
-                style={{ width: `${(dev.assignedTasksCount / maxTasks) * 100}%` }}
-              ></div>
-              {/* Completed tasks bar (foreground) */}
-              <div
-                className="absolute inset-y-0 left-0 bg-red-600 rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
-                style={{ width: `${(dev.completedTasksCount / maxTasks) * 100}%` }}
+                className="h-full bg-blue-400/85 rounded-lg flex items-center justify-end pr-3 transition-all duration-500"
+                style={{ width: `${(dev.completed / maxTasks) * 100}%` }}
               >
-                <span className="text-white text-sm font-medium">{dev.completedTasksCount}</span>
+                <span className="text-white text-sm font-medium">{dev.completed}</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t border-slate-200">
+      <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-slate-200">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-600"></div>
+          <div className="w-3 h-3 rounded bg-blue-400/85"></div>
           <span className="text-sm text-slate-600">Completed Tasks</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-200"></div>
-          <span className="text-sm text-slate-600">Total Assigned</span>
         </div>
       </div>
     </div>
