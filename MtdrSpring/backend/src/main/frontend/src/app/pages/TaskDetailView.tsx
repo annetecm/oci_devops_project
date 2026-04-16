@@ -15,8 +15,15 @@ import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { getTaskById } from '../data/mockData';
-import { useState } from 'react';
+import {
+  Status,
+  Task,
+  buildFrontendTask,
+  fetchDeveloperSummaries,
+  fetchTaskById,
+  updateTaskStatus,
+} from '../api/taskDataApi';
+import { useEffect, useState } from 'react';
 
 const priorityConfig = {
   high: { color: 'text-red-700', bgColor: 'bg-red-100 border-red-200', label: 'High Priority' },
@@ -33,19 +40,69 @@ const statusConfig = {
 export default function TaskDetailView() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const task = getTaskById(taskId!);
-  const [status, setStatus] = useState(task?.status || 'todo');
+  const [task, setTask] = useState<Task | null>(null);
+  const [status, setStatus] = useState<Status>('todo');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadTask() {
+      if (!taskId) {
+        setError('Task ID was not provided');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const [taskData, developers] = await Promise.all([fetchTaskById(taskId), fetchDeveloperSummaries()]);
+        const mappedTask = buildFrontendTask(taskData, developers);
+        setTask(mappedTask);
+        setStatus(mappedTask.status);
+        setError(null);
+      } catch {
+        setError('Could not load task from database');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadTask();
+  }, [taskId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center text-slate-600">Loading task...</div>
+      </div>
+    );
+  }
 
   if (!task) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-slate-900 mb-4">Task not found</h2>
+          <h2 className="text-slate-900 mb-2">Task not found</h2>
+          {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
           <Button onClick={() => navigate('/developer')}>Return to Dashboard</Button>
         </div>
       </div>
     );
   }
+
+  const handleSaveStatus = async () => {
+    if (!taskId) return;
+    try {
+      setIsSaving(true);
+      await updateTaskStatus(taskId, status);
+      setTask({ ...task, status });
+      setError(null);
+    } catch {
+      setError('Could not update task status');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig];
 
@@ -77,9 +134,9 @@ export default function TaskDetailView() {
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveStatus} disabled={isSaving}>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Save Changes
+                {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </div>
@@ -126,6 +183,9 @@ export default function TaskDetailView() {
             <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
               <h3 className="text-slate-900 mb-4">Acceptance Criteria</h3>
               <div className="space-y-3">
+                {task.acceptanceCriteria.length === 0 && (
+                  <p className="text-sm text-slate-500">No acceptance criteria stored for this task.</p>
+                )}
                 {task.acceptanceCriteria.map((criteria, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -178,6 +238,7 @@ export default function TaskDetailView() {
             </div>
           </div>
         </div>
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </main>
     </div>
   );

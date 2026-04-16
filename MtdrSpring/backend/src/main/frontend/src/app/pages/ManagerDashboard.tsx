@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckCircle2, Clock, ListTodo, AlertCircle, Folder } from 'lucide-react';
 import Header from '../components/Header';
@@ -5,45 +6,92 @@ import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import TeamPerformanceChart from '../components/TeamPerformanceChart';
 import HoursWorkedChart from '../components/HoursWorkedChart';
-import { tasks, developers, sprints, sprintDevStats, getStats } from '../data/mockData';
+import {
+  BackendTask,
+  DeveloperSummary,
+  buildDeveloperMetricsFromBackend,
+  buildFrontendTasks,
+  fetchDeveloperSummaries,
+  fetchTasks,
+  getStats,
+} from '../api/taskDataApi';
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
-  const stats = getStats();
+  const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
+  const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Per-developer averages across all sprints
-  const devAvgTasks = developers.map((dev) => {
-    const devStats = sprintDevStats.filter((s) => s.devId === dev.id);
-    const avg = devStats.length > 0
-      ? devStats.reduce((sum, s) => sum + s.completedTasksCount, 0) / devStats.length
-      : 0;
-    return { name: dev.name, avg: avg.toFixed(1) };
-  });
-  const overallAvgTasks = (
-    devAvgTasks.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgTasks.length
-  ).toFixed(1);
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [tasksData, developersData] = await Promise.all([fetchTasks(), fetchDeveloperSummaries()]);
+        setBackendTasks(tasksData);
+        setDevelopers(developersData);
+        setError(null);
+      } catch {
+        setError('Could not load dashboard data from database');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
-  const devAvgHours = developers.map((dev) => {
-    const devStats = sprintDevStats.filter((s) => s.devId === dev.id);
-    const avg = devStats.length > 0
-      ? devStats.reduce((sum, s) => sum + s.hoursWorked, 0) / devStats.length
-      : 0;
-    return { name: dev.name, avg: avg.toFixed(1) };
+  const tasks = useMemo(() => buildFrontendTasks(backendTasks, developers), [backendTasks, developers]);
+  const devMetrics = useMemo(
+    () => buildDeveloperMetricsFromBackend(backendTasks, developers),
+    [backendTasks, developers],
+  );
+  const stats = useMemo(() => getStats(tasks), [tasks]);
+
+  const devAvgTasks = devMetrics.map((dev) => {
+    return { name: dev.name, avg: String(dev.completedTasksCount) };
   });
-  const overallAvgHours = (
-    devAvgHours.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgHours.length
-  ).toFixed(1);
+  const overallAvgTasks = devAvgTasks.length > 0
+    ? (devAvgTasks.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgTasks.length).toFixed(1)
+    : '0.0';
+
+  const devAvgHours = devMetrics.map((dev) => {
+    return { name: dev.name, avg: dev.hoursWorked.toFixed(1) };
+  });
+  const overallAvgHours = devAvgHours.length > 0
+    ? (devAvgHours.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgHours.length).toFixed(1)
+    : '0.0';
+
+  const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+  const daysRemaining = (() => {
+    const pendingDueDates = tasks
+      .filter((task) => task.status !== 'done')
+      .map((task) => {
+        const diffMs = new Date(task.dueDate).getTime() - Date.now();
+        return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+      });
+    if (pendingDueDates.length === 0) {
+      return 0;
+    }
+    return Math.min(...pendingDueDates);
+  })();
 
   const handleTaskClick = (taskId: string) => {
     navigate(`/developer/task/${taskId}`);
   };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-slate-50 p-8 text-slate-600">Loading dashboard data...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen bg-slate-50 p-8 text-red-600">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Header
         title="Manager Dashboard"
         subtitle="Monitor team progress and track project metrics"
-        userName="John Anderson"
+        userName="Monserrat Morales"
         userInitials="JA"
       />
 
@@ -93,21 +141,21 @@ export default function ManagerDashboard() {
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="text-center p-3 bg-slate-50 rounded-lg">
               <p className="text-xl text-slate-900 mb-1">
-                {Math.round((stats.done / stats.total) * 100)}%
+                {completionRate}%
               </p>
               <p className="text-sm text-slate-600">Completion Rate</p>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
-              <p className="text-xl text-slate-900 mb-1">6</p>
+              <p className="text-xl text-slate-900 mb-1">{daysRemaining}</p>
               <p className="text-sm text-slate-600">Days Remaining</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {/* Avg Tasks per Developer */}
+            {/* Completed Tasks per Developer */}
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700">Avg Tasks / Sprint</p>
+                <p className="text-sm font-medium text-slate-700">Completed Tasks / Developer</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
               </div>
               <div className="space-y-1.5">
@@ -119,10 +167,10 @@ export default function ManagerDashboard() {
                 ))}
               </div>
             </div>
-            {/* Avg Hours per Developer */}
+            {/* Logged Hours per Developer */}
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700">Avg Hours / Sprint</p>
+                <p className="text-sm font-medium text-slate-700">Hours Logged / Developer</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgHours}h</span>
               </div>
               <div className="space-y-1.5">
@@ -139,8 +187,19 @@ export default function ManagerDashboard() {
 
         {/* Team Performance Charts */}
         <div className="grid grid-cols-2 gap-4 mb-5">
-          <TeamPerformanceChart />
-          <HoursWorkedChart />
+          <TeamPerformanceChart
+            data={devMetrics.map((dev) => ({
+              name: dev.name,
+              assigned: dev.assignedTasksCount,
+              completed: dev.completedTasksCount,
+            }))}
+          />
+          <HoursWorkedChart
+            data={devMetrics.map((dev) => ({
+              name: dev.name,
+              hoursWorked: dev.hoursWorked,
+            }))}
+          />
         </div>
 
         {/* Kanban Board */}

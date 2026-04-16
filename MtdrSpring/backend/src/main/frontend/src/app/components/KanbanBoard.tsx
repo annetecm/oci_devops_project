@@ -1,4 +1,4 @@
-import { Task, Status } from '../data/mockData';
+import { Task, Status } from '../api/taskDataApi';
 import TaskCard from './TaskCard';
 
 interface KanbanBoardProps {
