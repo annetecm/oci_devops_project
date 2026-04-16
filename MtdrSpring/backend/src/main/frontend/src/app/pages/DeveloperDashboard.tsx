@@ -1,19 +1,56 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckCircle2, Clock, ListTodo, AlertCircle, CalendarClock } from 'lucide-react';
 import Header from '../components/Header';
 import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import TeamPerformanceChart from '../components/TeamPerformanceChart';
-import { tasks, getStats, getTasksByDeveloper } from '../data/mockData';
-
-const DEVELOPER_ID = 'dev1';
-const DEVELOPER_NAME = 'Sarah Chen';
-const DEVELOPER_INITIALS = 'SC';
+import {
+  BackendTask,
+  DeveloperSummary,
+  buildDeveloperMetricsFromBackend,
+  buildFrontendTasks,
+  fetchDeveloperSummaries,
+  fetchTasks,
+  getStats,
+  getTasksByDeveloper,
+} from '../api/taskDataApi';
 
 export default function DeveloperDashboard() {
   const navigate = useNavigate();
-  const myTasks = getTasksByDeveloper(DEVELOPER_ID);
-  const stats = getStats(DEVELOPER_ID);
+  const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
+  const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [tasksData, developersData] = await Promise.all([fetchTasks(), fetchDeveloperSummaries()]);
+        setBackendTasks(tasksData);
+        setDevelopers(developersData);
+        setError(null);
+      } catch {
+        setError('Could not load developer dashboard data from database');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const tasks = useMemo(() => buildFrontendTasks(backendTasks, developers), [backendTasks, developers]);
+  const selectedDeveloper = developers[0];
+  const developerId = selectedDeveloper?.id ?? '';
+  const myTasks = useMemo(
+    () => (developerId ? getTasksByDeveloper(tasks, developerId) : []),
+    [tasks, developerId],
+  );
+  const stats = useMemo(() => getStats(myTasks), [myTasks]);
+  const devMetrics = useMemo(
+    () => buildDeveloperMetricsFromBackend(backendTasks, developers),
+    [backendTasks, developers],
+  );
 
   const upcomingDeadlines = myTasks.filter((task) => {
     const dueDate = new Date(task.dueDate);
@@ -26,13 +63,23 @@ export default function DeveloperDashboard() {
     navigate(`/developer/task/${taskId}`);
   };
 
+  const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-slate-50 p-8 text-slate-600">Loading dashboard data...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen bg-slate-50 p-8 text-red-600">{error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Header
         title="Developer Dashboard"
         subtitle="Manage your tasks and track your progress"
-        userName={DEVELOPER_NAME}
-        userInitials={DEVELOPER_INITIALS}
+        userName={selectedDeveloper?.name ?? 'Developer'}
+        userInitials={selectedDeveloper?.initials ?? 'DV'}
       />
 
       <main className="p-8">
@@ -52,7 +99,7 @@ export default function DeveloperDashboard() {
               <p className="text-sm text-slate-600">Total Assigned</p>
             </div>
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-2xl text-slate-900 mb-1">{Math.round((stats.done / stats.total) * 100)}%</p>
+              <p className="text-2xl text-slate-900 mb-1">{completionRate}%</p>
               <p className="text-sm text-slate-600">Completion Rate</p>
             </div>
             <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -67,7 +114,13 @@ export default function DeveloperDashboard() {
         </div>
 
         <div className="mb-8">
-          <TeamPerformanceChart />
+          <TeamPerformanceChart
+            data={devMetrics.map((dev) => ({
+              name: dev.name,
+              assigned: dev.assignedTasksCount,
+              completed: dev.completedTasksCount,
+            }))}
+          />
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">

@@ -1,17 +1,14 @@
-import { useState } from 'react';
-import { developers, sprints, sprintDevStats } from '../data/mockData';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+interface TeamPerformanceItem {
+  name: string;
+  assigned: number;
+  completed: number;
+}
 
-export default function TeamPerformanceChart() {
-  const [selectedSprint, setSelectedSprint] = useState<string>('all');
+interface TeamPerformanceChartProps {
+  data: TeamPerformanceItem[];
+}
 
-  const data = developers.map(dev => {
-    if (selectedSprint === 'all') {
-      return { name: dev.name, assigned: dev.assignedTasksCount, completed: dev.completedTasksCount };
-    }
-    const stats = sprintDevStats.find(s => s.sprintId === selectedSprint && s.devId === dev.id);
-    return { name: dev.name, assigned: stats?.assignedTasksCount ?? 0, completed: stats?.completedTasksCount ?? 0 };
-  });
+export default function TeamPerformanceChart({ data }: TeamPerformanceChartProps) {
 
   const maxTasks = Math.max(...data.map(d => d.assigned), 1);
 
@@ -19,18 +16,7 @@ export default function TeamPerformanceChart() {
     <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
       <h3 className="text-slate-900 mb-3">Tasks Completed per Developer</h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-slate-500">Completed vs Total Assigned Tasks</p>
-        <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-          <SelectTrigger size="sm" className="!w-[130px] text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="min-w-[130px]">
-            <SelectItem value="all">All Sprints</SelectItem>
-            {sprints.map(s => (
-              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <p className="text-sm text-slate-500">Completed vs assigned tasks (live DB data)</p>
       </div>
 
       <div className="space-y-4">

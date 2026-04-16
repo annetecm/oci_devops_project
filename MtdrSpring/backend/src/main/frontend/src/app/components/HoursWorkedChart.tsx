@@ -1,17 +1,13 @@
-import { useState } from 'react';
-import { developers, sprints, sprintDevStats } from '../data/mockData';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+interface HoursWorkedItem {
+  name: string;
+  hoursWorked: number;
+}
 
-export default function HoursWorkedChart() {
-  const [selectedSprint, setSelectedSprint] = useState<string>('all');
+interface HoursWorkedChartProps {
+  data: HoursWorkedItem[];
+}
 
-  const data = developers.map(dev => {
-    if (selectedSprint === 'all') {
-      return { name: dev.name, hoursWorked: dev.hoursWorked };
-    }
-    const stats = sprintDevStats.find(s => s.sprintId === selectedSprint && s.devId === dev.id);
-    return { name: dev.name, hoursWorked: stats?.hoursWorked ?? 0 };
-  });
+export default function HoursWorkedChart({ data }: HoursWorkedChartProps) {
 
   const maxHours = Math.max(...data.map(d => d.hoursWorked), 1);
 
@@ -19,18 +15,7 @@ export default function HoursWorkedChart() {
     <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
       <h3 className="text-slate-900 mb-3">Hours Worked per Developer</h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-slate-500">Total hours worked this sprint</p>
-        <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-          <SelectTrigger size="sm" className="!w-[130px] text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="min-w-[130px]">
-            <SelectItem value="all">All Sprints</SelectItem>
-            {sprints.map(s => (
-              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <p className="text-sm text-slate-500">Logged hours from task.timeSpent (live DB data)</p>
       </div>
 
       <div className="space-y-4">
