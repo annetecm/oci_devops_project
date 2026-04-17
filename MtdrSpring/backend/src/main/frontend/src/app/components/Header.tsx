@@ -31,7 +31,7 @@ export default function Header({ title, subtitle, userName, userInitials }: Head
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
               <div className="text-right">
                 <p className="text-sm text-slate-900">{userName}</p>
-                <p className="text-xs text-slate-500">Online</p>
+                <p className="text-xs text-slate-500">Manager</p>
               </div>
               <Avatar className="w-10 h-10 bg-primary text-white">
                 <AvatarFallback className="bg-primary text-white">{userInitials}</AvatarFallback>
