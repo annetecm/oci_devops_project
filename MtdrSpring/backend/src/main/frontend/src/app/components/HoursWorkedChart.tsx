@@ -15,7 +15,7 @@ export default function HoursWorkedChart({ data }: HoursWorkedChartProps) {
     <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
       <h3 className="text-slate-900 mb-3">Hours Worked per Developer</h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-slate-500">Logged hours from task.timeSpent</p>
+        <p className="text-sm text-slate-500">Total hours worked by sprint</p>
       </div>
 
       <div className="space-y-4">
