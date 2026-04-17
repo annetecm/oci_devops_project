@@ -16,7 +16,7 @@ export default function TeamPerformanceChart({ data }: TeamPerformanceChartProps
     <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
       <h3 className="text-slate-900 mb-3">Tasks Completed per Developer</h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-slate-500">Completed vs assigned tasks (live DB data)</p>
+        <p className="text-sm text-slate-500">Completed vs assigned tasks </p>
       </div>
 
       <div className="space-y-4">

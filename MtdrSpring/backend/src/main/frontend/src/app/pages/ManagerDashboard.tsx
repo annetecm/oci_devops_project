@@ -6,6 +6,7 @@ import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import TeamPerformanceChart from '../components/TeamPerformanceChart';
 import HoursWorkedChart from '../components/HoursWorkedChart';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import {
   BackendTask,
   DeveloperSummary,
@@ -20,6 +21,7 @@ export default function ManagerDashboard() {
   const navigate = useNavigate();
   const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
+  const [selectedSprint, setSelectedSprint] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,40 +41,66 @@ export default function ManagerDashboard() {
     loadData();
   }, []);
 
-  const tasks = useMemo(() => buildFrontendTasks(backendTasks, developers), [backendTasks, developers]);
+  const sprintOptions = useMemo(
+    () => Array.from(new Set([0, ...backendTasks.map((task) => task.sprint).filter((s): s is number => s !== undefined)])).sort((a, b) => a - b),
+    [backendTasks],
+  );
+
+  const filteredBackendTasks = useMemo(
+    () => selectedSprint === 'all'
+      ? backendTasks
+      : backendTasks.filter((task) => task.sprint === Number(selectedSprint)),
+    [backendTasks, selectedSprint],
+  );
+
+  const tasks = useMemo(() => buildFrontendTasks(filteredBackendTasks, developers), [filteredBackendTasks, developers]);
   const devMetrics = useMemo(
-    () => buildDeveloperMetricsFromBackend(backendTasks, developers),
-    [backendTasks, developers],
+    () => buildDeveloperMetricsFromBackend(filteredBackendTasks, developers),
+    [filteredBackendTasks, developers],
   );
   const stats = useMemo(() => getStats(tasks), [tasks]);
 
-  const devAvgTasks = devMetrics.map((dev) => {
-    return { name: dev.name, avg: String(dev.completedTasksCount) };
+  // Sprint values are zero-based in the data, so 0, 1, 2 means we are on sprint 3.
+  const currentSprint = backendTasks.length > 0
+    ? Math.max(...backendTasks.map((task) => task.sprint ?? 0)) + 1
+    : 1;
+  const sprintDivisor = selectedSprint === 'all' ? currentSprint : 1;
+
+  // Group tasks by developer and calculate totals for the active filter scope
+  const devTaskTotals = new Map<string, { completedTasks: number; hours: number }>();
+  filteredBackendTasks.forEach((task) => {
+    const devId = String(task.developerID);
+    if (!devTaskTotals.has(devId)) {
+      devTaskTotals.set(devId, { completedTasks: 0, hours: 0 });
+    }
+    const current = devTaskTotals.get(devId)!;
+    if (task.status === 'closed') {
+      current.completedTasks += 1;
+    }
+    current.hours += task.timeSpent || 0;
+  });
+
+  // Calculate averages per sprint
+  const devAvgTasks = developers.map((dev) => {
+    const totals = devTaskTotals.get(dev.id) || { completedTasks: 0, hours: 0 };
+    const avgPerSprint = (totals.completedTasks / sprintDivisor).toFixed(1);
+    return { name: dev.name, avg: avgPerSprint };
   });
   const overallAvgTasks = devAvgTasks.length > 0
     ? (devAvgTasks.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgTasks.length).toFixed(1)
     : '0.0';
 
-  const devAvgHours = devMetrics.map((dev) => {
-    return { name: dev.name, avg: dev.hoursWorked.toFixed(1) };
+  const devAvgHours = developers.map((dev) => {
+    const totals = devTaskTotals.get(dev.id) || { completedTasks: 0, hours: 0 };
+    const avgPerSprint = (totals.hours / sprintDivisor).toFixed(1);
+    return { name: dev.name, avg: avgPerSprint };
   });
   const overallAvgHours = devAvgHours.length > 0
     ? (devAvgHours.reduce((sum, d) => sum + parseFloat(d.avg), 0) / devAvgHours.length).toFixed(1)
     : '0.0';
 
   const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
-  const daysRemaining = (() => {
-    const pendingDueDates = tasks
-      .filter((task) => task.status !== 'done')
-      .map((task) => {
-        const diffMs = new Date(task.dueDate).getTime() - Date.now();
-        return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-      });
-    if (pendingDueDates.length === 0) {
-      return 0;
-    }
-    return Math.min(...pendingDueDates);
-  })();
+ 
 
   const handleTaskClick = (taskId: string) => {
     navigate(`/developer/task/${taskId}`);
@@ -92,10 +120,26 @@ export default function ManagerDashboard() {
         title="Manager Dashboard"
         subtitle="Monitor team progress and track project metrics"
         userName="Monserrat Morales"
-        userInitials="JA"
+        userInitials="MM"
       />
 
       <main className="p-6">
+        <div className="flex items-center justify-end mb-4">
+          <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+            <SelectTrigger size="sm" className="!w-[130px] text-sm">
+              <SelectValue placeholder="Select sprint" />
+            </SelectTrigger>
+            <SelectContent className="min-w-[130px]">
+              <SelectItem value="all">All Sprints</SelectItem>
+              {sprintOptions.map((sprint) => (
+                <SelectItem key={sprint} value={String(sprint)}>
+                  {`Sprint ${sprint}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Stats Section */}
         <div className="grid grid-cols-5 gap-4 mb-5">
           <StatsCard
@@ -145,17 +189,14 @@ export default function ManagerDashboard() {
               </p>
               <p className="text-sm text-slate-600">Completion Rate</p>
             </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <p className="text-xl text-slate-900 mb-1">{daysRemaining}</p>
-              <p className="text-sm text-slate-600">Days Remaining</p>
-            </div>
+            
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             {/* Completed Tasks per Developer */}
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700">Completed Tasks / Developer</p>
+                <p className="text-sm font-medium text-slate-700">Average Tasks / Sprint</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
               </div>
               <div className="space-y-1.5">
@@ -170,7 +211,7 @@ export default function ManagerDashboard() {
             {/* Logged Hours per Developer */}
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700">Hours Logged / Developer</p>
+                <p className="text-sm font-medium text-slate-700">Average Hours / Sprint</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgHours}h</span>
               </div>
               <div className="space-y-1.5">
