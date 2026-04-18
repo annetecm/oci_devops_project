@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     Component: ManagerDashboard,
   },
   {
-    path: "/developer",
+    path: "/developer/:developerId",
     Component: DeveloperDashboard,
   },
   {

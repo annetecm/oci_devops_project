@@ -17,7 +17,8 @@ export default function RoleSelection() {
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/developer');
+    // Navigate to developer dashboard for developer ID 21 (default/first developer)
+    navigate('/developer/21');
   };
 
   return (

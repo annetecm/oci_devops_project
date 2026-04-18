@@ -60,6 +60,30 @@ interface BackendDeveloperSummary {
   fullName: string;
 }
 
+interface BackendDashboardData {
+  developers: Array<{
+    developerID: number;
+    userID: number;
+    teamID: number;
+    assignedTasksCount: number;
+    completedTasksCount: number;
+    hoursWorked: number;
+    estimatedHours: number;
+  }>;
+  sprintStats: Array<{
+    sprintId: number;
+    devId: number;
+    assignedTasksCount: number;
+    completedTasksCount: number;
+    hoursWorked: number;
+  }>;
+  sprints: Array<{
+    id: number;
+    name: string;
+  }>;
+  tasks: BackendTask[];
+}
+
 function toFrontendStatus(status: string): Status {
   if (status === 'closed') return 'done';
   if (status === 'in_progress') return 'in-progress';
@@ -150,6 +174,14 @@ export async function updateTaskStatus(taskId: string, status: Status): Promise<
   if (!response.ok) {
     throw new Error('Could not update task status');
   }
+}
+
+export async function fetchDeveloperDashboard(developerId: string): Promise<BackendDashboardData> {
+  const response = await fetch(`/api/dashboard/developer/${developerId}`);
+  if (!response.ok) {
+    throw new Error('Could not load developer dashboard data');
+  }
+  return (await response.json()) as BackendDashboardData;
 }
 
 export function buildFrontendTasks(tasks: BackendTask[], developers: DeveloperSummary[]): Task[] {
