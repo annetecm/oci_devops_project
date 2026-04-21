@@ -1,4 +1,4 @@
-import { developers } from '../data/mockData';
+import { developers } from '../../data/mockData';
 import { Users, CheckCircle2, Clock } from 'lucide-react';
 
 export default function TeamOverview() {

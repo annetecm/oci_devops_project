@@ -1,5 +1,5 @@
-import { Task, Status } from '../api/taskDataApi';
-import TaskCard from './TaskCard';
+import { Task, Status } from '../../api/taskDataApi';
+import TaskCard from '../TaskCard';
 
 interface KanbanBoardProps {
   tasks: Task[];

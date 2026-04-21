@@ -1,6 +1,6 @@
 import { Calendar, AlertCircle, User } from 'lucide-react';
-import { Task, Priority } from '../api/taskDataApi';
-import { Badge } from './ui/badge';
+import { Task, Priority } from '../../api/taskDataApi';
+import { Badge } from '../ui/badge';
 
 interface TaskCardProps {
   task: Task;

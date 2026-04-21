@@ -1,7 +1,7 @@
 import { Bell, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { Button } from './ui/button';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Button } from '../ui/button';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 interface HeaderProps {
   title: string;
