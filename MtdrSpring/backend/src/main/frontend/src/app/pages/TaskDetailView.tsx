@@ -79,7 +79,7 @@ export default function TaskDetailView() {
         <div className="text-center">
           <h2 className="text-slate-900 mb-2">Task not found</h2>
           {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-          <Button onClick={() => navigate('/developer')}>Return to Dashboard</Button>
+          <Button onClick={() => navigate(`/developer/${task?.assignedTo || '21'}`)}>Return to Dashboard</Button>
         </div>
       </div>
     );
