@@ -3,20 +3,22 @@ import {
   ArrowLeft,
   Calendar,
   User,
-  AlertCircle,
   Tag,
   CheckCircle,
-  MessageSquare,
-  Paperclip,
   Clock,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
-import { Separator } from '../components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { getTaskById } from '../data/mockData';
-import { useState } from 'react';
+import {
+  Status,
+  Task,
+  buildFrontendTask,
+  fetchDeveloperSummaries,
+  fetchTaskById,
+  updateTaskStatus,
+} from '../api/taskDataApi';
+import { useEffect, useState } from 'react';
 
 const priorityConfig = {
   high: { color: 'text-red-700', bgColor: 'bg-red-100 border-red-200', label: 'High Priority' },
@@ -33,21 +35,73 @@ const statusConfig = {
 export default function TaskDetailView() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const task = getTaskById(taskId!);
-  const [status, setStatus] = useState(task?.status || 'todo');
+  const [task, setTask] = useState<Task | null>(null);
+  const [status, setStatus] = useState<Status>('todo');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadTask() {
+      if (!taskId) {
+        setError('Task ID was not provided');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const [taskData, developers] = await Promise.all([fetchTaskById(taskId), fetchDeveloperSummaries()]);
+        const mappedTask = buildFrontendTask(taskData, developers);
+        setTask(mappedTask);
+        setStatus(mappedTask.status);
+        setError(null);
+      } catch {
+        setError('Could not load task from database');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadTask();
+  }, [taskId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center text-slate-600">Loading task...</div>
+      </div>
+    );
+  }
 
   if (!task) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-slate-900 mb-4">Task not found</h2>
+          <h2 className="text-slate-900 mb-2">Task not found</h2>
+          {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
           <Button onClick={() => navigate('/developer')}>Return to Dashboard</Button>
         </div>
       </div>
     );
   }
 
+  const handleSaveStatus = async () => {
+    if (!taskId) return;
+    try {
+      setIsSaving(true);
+      await updateTaskStatus(taskId, status);
+      setTask({ ...task, status });
+      setError(null);
+    } catch {
+      setError('Could not update task status');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig];
+  const showRealHours = status === 'done';
+  const hourDelta = showRealHours && task.realHours !== null ? task.realHours - task.estimatedHours : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -67,7 +121,7 @@ export default function TaskDetailView() {
               <p className="text-slate-600 mt-2">{task.description}</p>
             </div>
             <div className="flex gap-3 ml-6">
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(value) => setStatus(value as Status)}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Update status" />
                 </SelectTrigger>
@@ -77,9 +131,9 @@ export default function TaskDetailView() {
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveStatus} disabled={isSaving}>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Save Changes
+                {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </div>
@@ -122,38 +176,34 @@ export default function TaskDetailView() {
                 </div>
               </div>
             </div>
-
             <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-              <h3 className="text-slate-900 mb-4">Acceptance Criteria</h3>
-              <div className="space-y-3">
-                {task.acceptanceCriteria.map((criteria, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm text-slate-700">{criteria}</p>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-slate-900">Time of compleition</h3>
+                
+              </div>
+              <div className={`grid gap-4 ${showRealHours ? 'grid-cols-2' : 'grid-cols-1 max-w-xs'}`}>
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+                  <p className="text-xs text-slate-600 mb-1">Estimated</p>
+                  <p className="text-2xl text-slate-900">{task.estimatedHours}h</p>
+                </div>
+                {showRealHours && (
+                  <div className="rounded-lg border border-teal-200 bg-teal-50 p-4">
+                    <p className="text-xs text-slate-600 mb-1">Real</p>
+                    <p className="text-2xl text-slate-900">{task.realHours !== null ? `${task.realHours}h` : 'Not logged'}</p>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-              <div className="flex items-center gap-2 mb-4"><MessageSquare className="w-5 h-5 text-slate-600" /><h3 className="text-slate-900">Comments ({task.comments.length})</h3></div>
-              <div className="space-y-4">
-                {task.comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
-                    <Avatar className="w-8 h-8 bg-accent text-white"><AvatarFallback className="bg-accent text-white text-xs">{comment.author.split(' ').map((n) => n[0]).join('')}</AvatarFallback></Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1"><p className="text-sm text-slate-900">{comment.author}</p><span className="text-xs text-slate-500">{new Date(comment.timestamp).toLocaleDateString()}</span></div>
-                      <p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">{comment.content}</p>
-                    </div>
-                  </div>
-                ))}
-                {task.comments.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No comments yet</p>}
-              </div>
-              <Separator className="my-4" />
-              <div className="flex gap-2">
-                <input type="text" placeholder="Add a comment..." className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
-                <Button className="bg-primary hover:bg-primary/90">Post</Button>
-              </div>
+              {showRealHours && (
+                <div className="mt-4 text-sm">
+                  {hourDelta === null && <p className="text-slate-600">Real hours are not logged yet.</p>}
+                  {hourDelta !== null && hourDelta <= 0 && (
+                    <p className="text-green-700">Completed within estimate ({Math.abs(hourDelta)}h saved).</p>
+                  )}
+                  {hourDelta !== null && hourDelta > 0 && (
+                    <p className="text-orange-700">Completed over estimate by {hourDelta}h.</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -163,14 +213,10 @@ export default function TaskDetailView() {
               <div className="flex flex-wrap gap-2">{task.tags.map((tag) => <Badge key={tag} variant="secondary" className="bg-slate-100 text-slate-700 border-0">{tag}</Badge>)}</div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-              <div className="flex items-center gap-2 mb-4"><Paperclip className="w-5 h-5 text-slate-600" /><h3 className="text-slate-900">Attachments ({task.attachments.length})</h3></div>
-              <div className="space-y-2">{task.attachments.map((attachment, index) => (<div key={index} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"><Paperclip className="w-4 h-4 text-slate-600" /><span className="text-sm text-slate-700 truncate">{attachment}</span></div>))}{task.attachments.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No attachments</p>}</div>
-              <Button variant="outline" className="w-full mt-4">Add Attachment</Button>
-            </div>
+            
 
             <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-              <div className="flex items-center gap-2 mb-4"><AlertCircle className="w-5 h-5 text-slate-600" /><h3 className="text-slate-900">Priority</h3></div>
+              <div className="flex items-center gap-2 mb-4"><h3 className="text-slate-900">Priority</h3></div>
               <div className={`p-4 rounded-lg ${priority.bgColor}`}>
                 <p className={`text-sm ${priority.color}`}>{priority.label}</p>
                 <p className="text-xs text-slate-600 mt-2">{task.priority === 'high' && 'This task requires immediate attention and should be prioritized.'}{task.priority === 'medium' && 'This task should be completed in a timely manner.'}{task.priority === 'low' && 'This task can be completed when time permits.'}</p>
@@ -178,6 +224,7 @@ export default function TaskDetailView() {
             </div>
           </div>
         </div>
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </main>
     </div>
   );
