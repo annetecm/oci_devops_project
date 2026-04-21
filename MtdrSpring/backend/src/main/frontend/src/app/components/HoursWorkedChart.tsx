@@ -9,13 +9,13 @@ interface HoursWorkedChartProps {
 
 export default function HoursWorkedChart({ data }: HoursWorkedChartProps) {
 
-  const maxHours = Math.max(...data.map(d => d.hoursWorked), 1);
+  const maxHours = Math.max(...data.map((d) => d.hoursWorked), 1);
 
   return (
     <div className="bg-white rounded-xl p-5 shadow-md border border-slate-200">
       <h3 className="text-slate-900 mb-3">Hours Worked per Developer</h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-slate-500">Logged hours from task.timeSpent (live DB data)</p>
+        <p className="text-sm text-slate-500">Total hours worked by sprint</p>
       </div>
 
       <div className="space-y-4">

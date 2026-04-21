@@ -18,7 +18,10 @@ public interface DeveloperRepository extends JpaRepository<Developer, Integer> {
         String getFullName();
     }
 
-    @Query(value = "SELECT d.DEVELOPERID as developerId, 'Developer ' || TO_CHAR(d.DEVELOPERID) as fullName " +
-            "FROM DEVELOPER d ORDER BY d.DEVELOPERID", nativeQuery = true)
+        @Query(value = "SELECT d.DEVELOPERID as developerId, " +
+            "COALESCE(NULLIF(TRIM(ug.NAME || ' ' || ug.LASTNAME), ''), 'Developer ' || TO_CHAR(d.DEVELOPERID)) as fullName " +
+            "FROM DEVELOPER d " +
+            "LEFT JOIN USERGENERAL ug ON ug.USERID = d.USERID " +
+            "ORDER BY d.DEVELOPERID", nativeQuery = true)
     List<DeveloperSummaryProjection> findDeveloperSummaries();
 }

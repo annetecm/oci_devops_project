@@ -1,8 +1,6 @@
 package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.model.Task;
-import com.springboot.MyTodoList.service.DashboardService;
-import com.springboot.MyTodoList.service.DashboardService.DashboardData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/dashboard")
-public class DashboardController {
-
-    private final DashboardService dashboardService;
-
-    public DashboardController(DashboardService dashboardService) {
-        this.dashboardService = dashboardService;
-    }
+public class Dashboardcontroller {
 
     /**
      * GET /api/dashboard/manager?projectID=1
@@ -35,9 +27,9 @@ public class DashboardController {
      * }
      */
     @GetMapping("/manager")
-    public ResponseEntity<DashboardData> getManagerDashboard(
+    public ResponseEntity<Object> getManagerDashboard(
             @RequestParam(required = false) Integer projectID) {
-        return ResponseEntity.ok(dashboardService.getManagerDashboard(projectID));
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     /**
@@ -47,10 +39,10 @@ public class DashboardController {
      * projectID is optional.
      */
     @GetMapping("/developer/{developerID}")
-    public ResponseEntity<DashboardData> getDeveloperDashboard(
+    public ResponseEntity<Object> getDeveloperDashboard(
             @PathVariable Integer developerID,
             @RequestParam(required = false) Integer projectID) {
-        return ResponseEntity.ok(dashboardService.getDeveloperDashboard(developerID, projectID));
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     /**
@@ -60,9 +52,7 @@ public class DashboardController {
      */
     @GetMapping("/tasks/{taskID}")
     public ResponseEntity<Task> getTask(@PathVariable Integer taskID) {
-        return dashboardService.getTask(taskID)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     /**
@@ -77,12 +67,6 @@ public class DashboardController {
     public ResponseEntity<Task> updateTask(
             @PathVariable Integer taskID,
             @RequestBody Map<String, Object> body) {
-        String  status    = (String)  body.get("status");
-        Integer timeSpent = body.get("timeSpent") != null
-                ? ((Number) body.get("timeSpent")).intValue()
-                : null;
-        return dashboardService.updateTask(taskID, status, timeSpent)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 }

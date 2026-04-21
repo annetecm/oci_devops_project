@@ -1,4 +1,4 @@
-import { Calendar, AlertCircle, User } from 'lucide-react';
+import { Calendar, User } from 'lucide-react';
 import { Task, Priority } from '../api/taskDataApi';
 import { Badge } from './ui/badge';
 
@@ -22,7 +22,7 @@ export default function TaskCard({ task, onClick, showAssignee = false }: TaskCa
     <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md transition-all cursor-pointer group" onClick={onClick}>
       <div className="flex items-start justify-between mb-3">
         <h4 className="text-sm text-slate-900 leading-snug pr-2 group-hover:text-primary transition-colors">{task.title}</h4>
-        {task.priority === 'high' && <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />}
+        {task.priority === 'high' }
       </div>
 
       {task.description && <p className="text-xs text-slate-600 mb-3 line-clamp-2">{task.description}</p>}

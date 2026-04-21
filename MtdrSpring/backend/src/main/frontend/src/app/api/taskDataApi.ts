@@ -35,6 +35,8 @@ export interface Task {
   attachments: string[];
   createdAt: string;
   updatedAt: string;
+  estimatedHours: number;
+  realHours: number | null;
 }
 
 export interface BackendTask {
@@ -131,6 +133,8 @@ function toFrontendTask(task: BackendTask, developersById: Map<string, Developer
     attachments: [],
     createdAt: task.createdAt ?? task.startDate,
     updatedAt: task.updatedAt ?? task.startDate,
+    estimatedHours: task.estimatedTime,
+    realHours: task.timeSpent ?? null,
   };
 }
 
