@@ -57,12 +57,46 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public Task createTask(Task task) {
+        LocalDateTime now = LocalDateTime.now();
+        if (task.getStartDate() == null) {
+            task.setStartDate(now);
+        }
+        task.setCreatedAt(now);
+        task.setUpdatedAt(now);
+        if (task.getStatus() == null || task.getStatus().isBlank()) {
+            task.setStatus("open");
+        }
+        return taskRepository.save(task);
+    }
+
     public List<Task> findAllTasks() {
         return taskRepository.findAll();
     }
 
     public Optional<Task> findTaskById(int id) {
         return taskRepository.findById(id);
+    }
+
+    public void deleteTask(int id) {
+        taskRepository.deleteCommentsByTaskId(id);
+        taskRepository.deleteTaskLogsByTaskId(id);
+        taskRepository.deleteById(id);
+    }
+
+    public Optional<Task> updateTask(int id, Task updates) {
+        return taskRepository.findById(id).map(existing -> {
+            if (updates.getName() != null) existing.setName(updates.getName());
+            if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
+            if (updates.getStatus() != null) existing.setStatus(updates.getStatus());
+            if (updates.getPriority() != null) existing.setPriority(updates.getPriority());
+            if (updates.getDeadline() != null) existing.setDeadline(updates.getDeadline());
+            if (updates.getEstimatedTime() != null) existing.setEstimatedTime(updates.getEstimatedTime());
+            if (updates.getTimeSpent() != null) existing.setTimeSpent(updates.getTimeSpent());
+            if (updates.getDeveloperID() != null) existing.setDeveloperID(updates.getDeveloperID());
+            existing.setUpdatedAt(LocalDateTime.now());
+            return taskRepository.save(existing);
+        });
     }
 
     public Optional<Task> updateTaskStatus(int id, String status) {

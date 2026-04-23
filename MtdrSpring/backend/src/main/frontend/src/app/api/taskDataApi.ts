@@ -180,6 +180,61 @@ export async function updateTaskStatus(taskId: string, status: Status): Promise<
   }
 }
 
+export interface CreateTaskRequest {
+  name: string;
+  description: string;
+  status: string;
+  taskType: string;
+  deadline: string;
+  developerID: number;
+  estimatedTime: number;
+  priority: string;
+  projectID: number;
+  sprint?: number;
+}
+
+export async function createTask(data: CreateTaskRequest): Promise<BackendTask> {
+  const response = await fetch('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Could not create task');
+  }
+  return (await response.json()) as BackendTask;
+}
+
+export interface UpdateTaskRequest {
+  name?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  deadline?: string;
+  estimatedTime?: number;
+  timeSpent?: number;
+  developerID?: number;
+}
+
+export async function updateTask(taskId: string, data: UpdateTaskRequest): Promise<BackendTask> {
+  const response = await fetch(`/api/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Could not update task');
+  }
+  return (await response.json()) as BackendTask;
+}
+
+export async function deleteTask(taskId: string): Promise<void> {
+  const response = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+  if (!response.ok) {
+    throw new Error('Could not delete task');
+  }
+}
+
 export async function fetchDeveloperDashboard(developerId: string): Promise<BackendDashboardData> {
   const response = await fetch(`/api/dashboard/developer/${developerId}`);
   if (!response.ok) {

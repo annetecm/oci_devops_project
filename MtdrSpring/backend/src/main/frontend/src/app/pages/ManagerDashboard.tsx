@@ -24,6 +24,7 @@ export default function ManagerDashboard() {
   const [selectedSprint, setSelectedSprint] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey] = useState(0);
 
   useEffect(() => {
     async function loadData() {
@@ -39,7 +40,7 @@ export default function ManagerDashboard() {
       }
     }
     loadData();
-  }, []);
+  }, [refreshKey]);
 
   const sprintOptions = useMemo(
     () => Array.from(new Set([0, ...backendTasks.map((task) => task.sprint).filter((s): s is number => s !== undefined)])).sort((a, b) => a - b),
@@ -103,7 +104,7 @@ export default function ManagerDashboard() {
  
 
   const handleTaskClick = (taskId: string) => {
-    navigate(`/developer/task/${taskId}`);
+    navigate(`/developer/task/${taskId}`, { state: { role: 'manager' } });
   };
 
   if (isLoading) {
@@ -244,7 +245,19 @@ export default function ManagerDashboard() {
         </div>
 
         {/* Kanban Board */}
-        <KanbanBoard tasks={tasks} onTaskClick={handleTaskClick} />
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-slate-900">Task Board</h2>
+              <p className="text-sm text-slate-600 mt-1">Overview of all team tasks</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+            <div className="h-[600px]">
+              <KanbanBoard tasks={tasks} onTaskClick={handleTaskClick} />
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

@@ -23,6 +23,40 @@ public class TaskController {
         return taskService.findAllTasks();
     }
 
+    @PostMapping
+    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+        try {
+            Task created = taskService.createTask(task);
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable int id, @RequestBody Task updates) {
+        try {
+            return taskService.updateTask(id, updates)
+                    .map(task -> new ResponseEntity<>(task, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable int id) {
+        try {
+            if (taskService.findTaskById(id).isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            taskService.deleteTask(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable int id) {
         return taskService.findTaskById(id)

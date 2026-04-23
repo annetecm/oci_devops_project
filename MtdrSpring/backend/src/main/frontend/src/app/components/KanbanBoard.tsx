@@ -40,3 +40,4 @@ export default function KanbanBoard({ tasks, onTaskClick, showAssignee = false }
     </div>
   );
 }
+

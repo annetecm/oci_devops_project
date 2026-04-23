@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { CheckCircle2, Clock, ListTodo, CalendarClock, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Clock, ListTodo, CalendarClock, AlertTriangle, Plus } from 'lucide-react';
 import Header from '../components/Header';
 import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
+import CreateTaskModal from '../components/CreateTaskModal';
+import { Button } from '../components/ui/button';
 import DeveloperSprintHoursChart from '../components/DeveloperSprintHoursChart';
 import DeveloperSprintTasksChart from '../components/DeveloperSprintTasksChart';
 import {
@@ -23,6 +25,8 @@ export default function DeveloperDashboard() {
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -48,7 +52,7 @@ export default function DeveloperDashboard() {
       }
     }
     loadData();
-  }, [developerId]);
+  }, [developerId, refreshKey]);
 
   const tasks = useMemo(() => buildFrontendTasks(backendTasks, developers), [backendTasks, developers]);
   const selectedDeveloper = developers.find(dev => dev.id === developerId);
@@ -137,14 +141,33 @@ export default function DeveloperDashboard() {
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-          <div className="mb-6">
-            <h2 className="text-slate-900">My Task Board</h2>
-            <p className="text-sm text-slate-600 mt-1">Organize and track your personal workflow</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-slate-900">My Task Board</h2>
+              <p className="text-sm text-slate-600 mt-1">Organize and track your personal workflow</p>
+            </div>
+            <Button size="sm" onClick={() => setShowCreateModal(true)}>
+              <Plus className="w-4 h-4" />
+              Create Task
+            </Button>
           </div>
           <div className="h-[600px]">
-            <KanbanBoard tasks={myTasks} onTaskClick={handleTaskClick} showAssignee={false} />
+            <KanbanBoard
+              tasks={myTasks}
+              onTaskClick={handleTaskClick}
+              showAssignee={false}
+            />
           </div>
         </div>
+        {showCreateModal && (
+          <CreateTaskModal
+            onClose={() => setShowCreateModal(false)}
+            onCreated={() => setRefreshKey((k) => k + 1)}
+            developers={developers}
+            defaultDeveloperId={developerId}
+            projectId={backendTasks[0]?.projectID}
+          />
+        )}
       </main>
     </div>
   );
