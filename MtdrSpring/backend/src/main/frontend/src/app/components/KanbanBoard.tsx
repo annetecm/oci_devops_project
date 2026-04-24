@@ -1,5 +1,6 @@
 import { Task, Status } from '../api/taskDataApi';
 import TaskCard from './TaskCard';
+const dataTestId: string = "KanbanBoard";
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -23,12 +24,14 @@ export default function KanbanBoard({ tasks, onTaskClick, showAssignee = false }
         return (
           <div key={column.status} className="flex flex-col">
             <div className="mb-4">
-              <div className={`rounded-lg px-4 py-3 ${column.bgColor} border border-slate-200`}>
-                <h3 className="text-slate-900">{column.title}</h3>
+              <div className={`rounded-lg px-4 py-3 ${column.bgColor} border border-slate-200`} data-testid={`${dataTestId}-Status`}>
+                <h3 className="text-slate-900">
+                  {column.title}
+                </h3>
                 <p className="text-sm text-slate-600">{columnTasks.length} tasks</p>
               </div>
             </div>
-            <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+            <div className="flex-1 space-y-3 overflow-y-auto pr-1" data-testid={`${dataTestId}-Name`}>
               {columnTasks.map((task) => (
                 <TaskCard key={task.id} task={task} onClick={() => onTaskClick(task.id)} showAssignee={showAssignee} />
               ))}

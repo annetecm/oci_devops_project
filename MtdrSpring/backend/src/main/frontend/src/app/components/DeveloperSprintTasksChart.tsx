@@ -1,3 +1,5 @@
+const dataTestId: string = "DevSprintTask";
+
 interface SprintTasksData {
   sprintId: number;
   sprintName: string;
@@ -76,7 +78,7 @@ export default function DeveloperSprintTasksChart({ backendTasks, developerId }:
 
           return (
             <div key={sprint.sprintId} className="flex items-center gap-3">
-              <div className="w-20 text-sm text-slate-600 font-medium text-right">
+              <div className="w-20 text-sm text-slate-600 font-medium text-right" data-testid={`${dataTestId}-SprintName`}>
                 {sprint.sprintName}
               </div>
               <div className="flex-1 relative h-10 bg-slate-100 rounded overflow-hidden">
@@ -85,7 +87,7 @@ export default function DeveloperSprintTasksChart({ backendTasks, developerId }:
                   style={{ width: `${barWidth}%` }}
                 >
                   {barWidth > 15 && (
-                    <span className="text-xs text-white font-medium">{sprint.tasksCompleted}</span>
+                    <span className="text-xs text-white font-medium" data-testid={`${dataTestId}-NumberTasks`}>{sprint.tasksCompleted}</span>
                   )}
                 </div>
               </div>

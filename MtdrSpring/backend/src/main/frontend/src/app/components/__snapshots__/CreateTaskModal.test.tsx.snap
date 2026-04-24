@@ -1,0 +1,492 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CreateTaskModal Component > Matches snapshot 1`] = `
+<div>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center"
+  >
+    <div
+      class="absolute inset-0 bg-black/40"
+    />
+    <div
+      class="relative bg-white rounded-xl shadow-lg border border-slate-200 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-blue-200 [&::-webkit-scrollbar-thumb:hover]:bg-blue-300"
+    >
+      <div
+        class="flex items-center justify-between px-6 py-4 border-b border-slate-200"
+      >
+        <div>
+          <h2
+            class="text-slate-900 text-lg font-semibold"
+          >
+            Create New Task
+          </h2>
+          <p
+            class="text-sm text-slate-500 mt-0.5"
+          >
+            Fill in the details for the new task
+          </p>
+        </div>
+        <button
+          class="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          type="button"
+        >
+          <svg
+            class="lucide lucide-x w-4 h-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6 6 18"
+            />
+            <path
+              d="m6 6 12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <form
+        class="px-6 py-5 space-y-4"
+      >
+        <div
+          class="space-y-1.5"
+        >
+          <label
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            data-slot="label"
+            for="ct-name"
+          >
+            Title 
+            <span
+              class="text-red-500"
+            >
+              *
+            </span>
+          </label>
+          <input
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive !border-blue-300"
+            data-slot="input"
+            id="ct-name"
+            placeholder="e.g. Fix login button"
+            value=""
+          />
+        </div>
+        <div
+          class="space-y-1.5"
+        >
+          <label
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            data-slot="label"
+            for="ct-description"
+          >
+            Description 
+            <span
+              class="text-red-500"
+            >
+              *
+            </span>
+          </label>
+          <textarea
+            class="flex w-full rounded-md border border-blue-300 px-3 py-2 text-sm bg-transparent placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-300/50 focus-visible:border-blue-400 resize-none transition-[color,box-shadow]"
+            id="ct-description"
+            placeholder="Describe the task..."
+            rows="3"
+          />
+        </div>
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="space-y-1.5"
+          >
+            <label
+              class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+              data-slot="label"
+            >
+              Priority 
+              <span
+                class="text-red-500"
+              >
+                *
+              </span>
+            </label>
+            <button
+              aria-autocomplete="none"
+              aria-controls="radix-:r5a:"
+              aria-expanded="false"
+              class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 !border-blue-300"
+              data-size="default"
+              data-slot="select-trigger"
+              data-state="closed"
+              dir="ltr"
+              role="combobox"
+              type="button"
+            >
+              <span
+                data-slot="select-value"
+                style="pointer-events: none;"
+              >
+                Medium
+              </span>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-chevron-down size-4 opacity-50"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m6 9 6 6 6-6"
+                />
+              </svg>
+            </button>
+            <select
+              aria-hidden="true"
+              style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+              tabindex="-1"
+            >
+              <option
+                value="HIGH"
+              >
+                High
+              </option>
+              <option
+                selected=""
+                value="MEDIUM"
+              >
+                Medium
+              </option>
+              <option
+                value="LOW"
+              >
+                Low
+              </option>
+            </select>
+          </div>
+          <div
+            class="space-y-1.5"
+          >
+            <label
+              class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+              data-slot="label"
+            >
+              Task Type 
+              <span
+                class="text-red-500"
+              >
+                *
+              </span>
+            </label>
+            <button
+              aria-autocomplete="none"
+              aria-controls="radix-:r5b:"
+              aria-expanded="false"
+              class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 !border-blue-300"
+              data-size="default"
+              data-slot="select-trigger"
+              data-state="closed"
+              dir="ltr"
+              role="combobox"
+              type="button"
+            >
+              <span
+                data-slot="select-value"
+                style="pointer-events: none;"
+              >
+                New Feature
+              </span>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-chevron-down size-4 opacity-50"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m6 9 6 6 6-6"
+                />
+              </svg>
+            </button>
+            <select
+              aria-hidden="true"
+              style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+              tabindex="-1"
+            >
+              <option
+                selected=""
+                value="new-feature"
+              >
+                New Feature
+              </option>
+              <option
+                value="bug-fixed"
+              >
+                Bug Fix
+              </option>
+              <option
+                value="improved-feature"
+              >
+                Improvement
+              </option>
+              <option
+                value="documentation"
+              >
+                Documentation
+              </option>
+              <option
+                value="review"
+              >
+                Review
+              </option>
+            </select>
+          </div>
+        </div>
+        <div
+          class="space-y-1.5"
+        >
+          <label
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            data-slot="label"
+          >
+            Status
+          </label>
+          <button
+            aria-autocomplete="none"
+            aria-controls="radix-:r5c:"
+            aria-expanded="false"
+            class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 !border-blue-300"
+            data-size="default"
+            data-slot="select-trigger"
+            data-state="closed"
+            dir="ltr"
+            role="combobox"
+            type="button"
+          >
+            <span
+              data-slot="select-value"
+              style="pointer-events: none;"
+            >
+              To Do
+            </span>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-chevron-down size-4 opacity-50"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
+          <select
+            aria-hidden="true"
+            style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+            tabindex="-1"
+          >
+            <option
+              selected=""
+              value="open"
+            >
+              To Do
+            </option>
+            <option
+              value="in_progress"
+            >
+              In Progress
+            </option>
+          </select>
+        </div>
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="space-y-1.5"
+          >
+            <label
+              class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+              data-slot="label"
+              for="ct-deadline"
+            >
+              Deadline 
+              <span
+                class="text-red-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive !border-blue-300"
+              data-slot="input"
+              id="ct-deadline"
+              type="date"
+              value=""
+            />
+          </div>
+          <div
+            class="space-y-1.5"
+          >
+            <label
+              class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+              data-slot="label"
+              for="ct-estimated"
+            >
+              Estimated Hours 
+              <span
+                class="text-red-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive !border-blue-300"
+              data-slot="input"
+              id="ct-estimated"
+              min="1"
+              placeholder="e.g. 8"
+              type="number"
+              value="1"
+            />
+          </div>
+        </div>
+        <div
+          class="space-y-1.5"
+        >
+          <label
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            data-slot="label"
+          >
+            Assigned Developer 
+            <span
+              class="text-red-500"
+            >
+              *
+            </span>
+          </label>
+          <button
+            aria-autocomplete="none"
+            aria-controls="radix-:r5d:"
+            aria-expanded="false"
+            class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 !border-blue-300"
+            data-size="default"
+            data-slot="select-trigger"
+            data-state="closed"
+            dir="ltr"
+            role="combobox"
+            type="button"
+          >
+            <span
+              data-slot="select-value"
+              style="pointer-events: none;"
+            >
+              Sarah Chen
+            </span>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-chevron-down size-4 opacity-50"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
+          <select
+            aria-hidden="true"
+            style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+            tabindex="-1"
+          >
+            <option
+              selected=""
+              value="1"
+            >
+              Sarah Chen
+            </option>
+            <option
+              value="2"
+            >
+              Marcus Johnson
+            </option>
+            <option
+              value="3"
+            >
+              Emily Rodriguez
+            </option>
+          </select>
+        </div>
+        <div
+          class="space-y-1.5"
+        >
+          <label
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            data-slot="label"
+            for="ct-sprint"
+          >
+            Sprint
+          </label>
+          <input
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive !border-blue-300"
+            data-slot="input"
+            id="ct-sprint"
+            min="0"
+            placeholder="e.g. 1"
+            type="number"
+            value=""
+          />
+        </div>
+        <div
+          class="flex items-center justify-end gap-3 pt-2"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-9 px-4 py-2 has-[>svg]:px-3"
+            data-slot="button"
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
+            data-slot="button"
+            type="submit"
+          >
+            Create Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;

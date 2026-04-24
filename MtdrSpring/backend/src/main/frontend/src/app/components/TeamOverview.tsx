@@ -1,5 +1,6 @@
 import { developers } from '../data/mockData';
 import { Users, CheckCircle2, Clock } from 'lucide-react';
+const dataTestId: string = "TeamOverview";
 
 export default function TeamOverview() {
   const totalTasks = developers.reduce((sum, dev) => sum + dev.assignedTasksCount, 0);
@@ -24,7 +25,7 @@ export default function TeamOverview() {
             <p className="text-sm text-slate-600">Avg Tasks / Developer</p>
           </div>
           <p className="text-2xl text-slate-900 ml-7">{avgTasksPerDev}</p>
-          <p className="text-xs text-slate-500 ml-7 mt-0.5">
+          <p className="text-xs text-slate-500 ml-7 mt-0.5" data-testid={`${dataTestId}-AvgTaskCompleted`}>
             {avgCompletedPerDev} completed on average
           </p>
         </div>
@@ -35,7 +36,7 @@ export default function TeamOverview() {
             <p className="text-sm text-slate-600">Avg Hours / Developer</p>
           </div>
           <p className="text-2xl text-slate-900 ml-7">{avgHoursPerDev}h</p>
-          <p className="text-xs text-slate-500 ml-7 mt-0.5">
+          <p className="text-xs text-slate-500 ml-7 mt-0.5" data-testid={`${dataTestId}-AvgHoursWorked`}>
             {totalHours}h total across team
           </p>
         </div>

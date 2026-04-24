@@ -1,0 +1,665 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RoleSelection Component > Matches snapshot 1`] = `
+<div>
+  <div
+    class="min-h-screen bg-white relative overflow-hidden"
+  >
+    <div
+      class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-red-500/10 via-rose-500/5 to-transparent rounded-full blur-3xl"
+    />
+    <div
+      class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-red-600/10 via-red-500/5 to-transparent rounded-full blur-3xl"
+    />
+    <div
+      class="relative min-h-screen flex"
+    >
+      <div
+        class="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16"
+      >
+        <div>
+          <div
+            class="mb-12"
+          >
+            <div
+              class="flex items-baseline gap-3 mb-4"
+            >
+              <h1
+                class="text-7xl lg:text-8xl tracking-tight"
+              >
+                <span
+                  class="bg-gradient-to-r from-red-700 via-red-600 to-rose-600 bg-clip-text text-transparent"
+                >
+                  Synkra
+                </span>
+              </h1>
+              <div
+                class="w-3 h-3 rounded-full bg-red-600 mb-4"
+              />
+            </div>
+            <div
+              class="ml-1 space-y-2"
+            >
+              <p
+                class="text-2xl text-gray-800"
+              >
+                Where productivity meets collaboration
+              </p>
+              <p
+                class="text-base text-red-700 italic"
+              >
+                Sync smarter. Work faster. Achieve more.
+              </p>
+            </div>
+          </div>
+          <div
+            class="w-32 h-1 bg-gradient-to-r from-red-600 to-transparent rounded-full"
+          />
+        </div>
+        <div
+          class="text-sm text-gray-500"
+        >
+          <p>
+            Software Requirements Project - Spring 2026
+          </p>
+        </div>
+      </div>
+      <div
+        class="w-full lg:w-1/2 flex items-center justify-center p-8"
+      >
+        <div
+          class="w-full max-w-md"
+        >
+          <div
+            class="bg-white rounded-2xl shadow-xl border border-red-100 p-8"
+          >
+            <div
+              class="flex flex-col gap-2 w-full"
+              data-orientation="horizontal"
+              data-slot="tabs"
+              dir="ltr"
+            >
+              <div
+                aria-orientation="horizontal"
+                class="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-xl p-[3px] flex grid w-full grid-cols-2 mb-6"
+                data-orientation="horizontal"
+                data-slot="tabs-list"
+                role="tablist"
+                style="outline: none;"
+                tabindex="0"
+              >
+                <button
+                  aria-controls="radix-:r14:-content-login"
+                  aria-selected="true"
+                  class="data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 flex items-center gap-2"
+                  data-orientation="horizontal"
+                  data-radix-collection-item=""
+                  data-slot="tabs-trigger"
+                  data-state="active"
+                  id="radix-:r14:-trigger-login"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  <svg
+                    class="lucide lucide-log-in w-4 h-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"
+                    />
+                    <polyline
+                      points="10 17 15 12 10 7"
+                    />
+                    <line
+                      x1="15"
+                      x2="3"
+                      y1="12"
+                      y2="12"
+                    />
+                  </svg>
+                  Log In
+                </button>
+                <button
+                  aria-controls="radix-:r14:-content-signup"
+                  aria-selected="false"
+                  class="data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 flex items-center gap-2"
+                  data-orientation="horizontal"
+                  data-radix-collection-item=""
+                  data-slot="tabs-trigger"
+                  data-state="inactive"
+                  id="radix-:r14:-trigger-signup"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  <svg
+                    class="lucide lucide-user-plus w-4 h-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                    />
+                    <circle
+                      cx="9"
+                      cy="7"
+                      r="4"
+                    />
+                    <line
+                      x1="19"
+                      x2="19"
+                      y1="8"
+                      y2="14"
+                    />
+                    <line
+                      x1="22"
+                      x2="16"
+                      y1="11"
+                      y2="11"
+                    />
+                  </svg>
+                  Sign Up
+                </button>
+              </div>
+              <div
+                aria-labelledby="radix-:r14:-trigger-login"
+                class="flex-1 outline-none"
+                data-orientation="horizontal"
+                data-slot="tabs-content"
+                data-state="active"
+                id="radix-:r14:-content-login"
+                role="tabpanel"
+                style="animation-duration: 0s;"
+                tabindex="0"
+              >
+                <form
+                  class="space-y-4"
+                >
+                  <div
+                    class="space-y-2"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 text-gray-700"
+                      data-slot="label"
+                      for="login-email"
+                    >
+                      Email Address
+                    </label>
+                    <div
+                      class="relative"
+                    >
+                      <svg
+                        class="lucide lucide-mail absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="16"
+                          rx="2"
+                          width="20"
+                          x="2"
+                          y="4"
+                        />
+                        <path
+                          d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                        />
+                      </svg>
+                      <input
+                        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                        data-slot="input"
+                        id="login-email"
+                        placeholder="you@example.com"
+                        required=""
+                        type="email"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="space-y-2"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 text-gray-700"
+                      data-slot="label"
+                      for="login-password"
+                    >
+                      Password
+                    </label>
+                    <div
+                      class="relative"
+                    >
+                      <svg
+                        class="lucide lucide-lock absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="11"
+                          rx="2"
+                          ry="2"
+                          width="18"
+                          x="3"
+                          y="11"
+                        />
+                        <path
+                          d="M7 11V7a5 5 0 0 1 10 0v4"
+                        />
+                      </svg>
+                      <input
+                        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                        data-slot="input"
+                        id="login-password"
+                        placeholder="••••••••"
+                        required=""
+                        type="password"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center justify-between text-sm"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-gray-600 cursor-pointer"
+                    >
+                      <input
+                        class="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        type="checkbox"
+                      />
+                      Remember me
+                    </label>
+                    <a
+                      class="text-red-600 hover:text-red-700"
+                      href="#"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <button
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20"
+                    data-slot="button"
+                    type="submit"
+                  >
+                    Log In to Synkra
+                  </button>
+                </form>
+              </div>
+              <div
+                aria-labelledby="radix-:r14:-trigger-signup"
+                class="flex-1 outline-none"
+                data-orientation="horizontal"
+                data-slot="tabs-content"
+                data-state="inactive"
+                hidden=""
+                id="radix-:r14:-content-signup"
+                role="tabpanel"
+                tabindex="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`RoleSelection Component > Matches snapshot on signup tab 1`] = `
+<div>
+  <div
+    class="min-h-screen bg-white relative overflow-hidden"
+  >
+    <div
+      class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-red-500/10 via-rose-500/5 to-transparent rounded-full blur-3xl"
+    />
+    <div
+      class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-red-600/10 via-red-500/5 to-transparent rounded-full blur-3xl"
+    />
+    <div
+      class="relative min-h-screen flex"
+    >
+      <div
+        class="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16"
+      >
+        <div>
+          <div
+            class="mb-12"
+          >
+            <div
+              class="flex items-baseline gap-3 mb-4"
+            >
+              <h1
+                class="text-7xl lg:text-8xl tracking-tight"
+              >
+                <span
+                  class="bg-gradient-to-r from-red-700 via-red-600 to-rose-600 bg-clip-text text-transparent"
+                >
+                  Synkra
+                </span>
+              </h1>
+              <div
+                class="w-3 h-3 rounded-full bg-red-600 mb-4"
+              />
+            </div>
+            <div
+              class="ml-1 space-y-2"
+            >
+              <p
+                class="text-2xl text-gray-800"
+              >
+                Where productivity meets collaboration
+              </p>
+              <p
+                class="text-base text-red-700 italic"
+              >
+                Sync smarter. Work faster. Achieve more.
+              </p>
+            </div>
+          </div>
+          <div
+            class="w-32 h-1 bg-gradient-to-r from-red-600 to-transparent rounded-full"
+          />
+        </div>
+        <div
+          class="text-sm text-gray-500"
+        >
+          <p>
+            Software Requirements Project - Spring 2026
+          </p>
+        </div>
+      </div>
+      <div
+        class="w-full lg:w-1/2 flex items-center justify-center p-8"
+      >
+        <div
+          class="w-full max-w-md"
+        >
+          <div
+            class="bg-white rounded-2xl shadow-xl border border-red-100 p-8"
+          >
+            <div
+              class="flex flex-col gap-2 w-full"
+              data-orientation="horizontal"
+              data-slot="tabs"
+              dir="ltr"
+            >
+              <div
+                aria-orientation="horizontal"
+                class="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-xl p-[3px] flex grid w-full grid-cols-2 mb-6"
+                data-orientation="horizontal"
+                data-slot="tabs-list"
+                role="tablist"
+                style="outline: none;"
+                tabindex="0"
+              >
+                <button
+                  aria-controls="radix-:r17:-content-login"
+                  aria-selected="true"
+                  class="data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 flex items-center gap-2"
+                  data-orientation="horizontal"
+                  data-radix-collection-item=""
+                  data-slot="tabs-trigger"
+                  data-state="active"
+                  id="radix-:r17:-trigger-login"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  <svg
+                    class="lucide lucide-log-in w-4 h-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"
+                    />
+                    <polyline
+                      points="10 17 15 12 10 7"
+                    />
+                    <line
+                      x1="15"
+                      x2="3"
+                      y1="12"
+                      y2="12"
+                    />
+                  </svg>
+                  Log In
+                </button>
+                <button
+                  aria-controls="radix-:r17:-content-signup"
+                  aria-selected="false"
+                  class="data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 flex items-center gap-2"
+                  data-orientation="horizontal"
+                  data-radix-collection-item=""
+                  data-slot="tabs-trigger"
+                  data-state="inactive"
+                  id="radix-:r17:-trigger-signup"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  <svg
+                    class="lucide lucide-user-plus w-4 h-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                    />
+                    <circle
+                      cx="9"
+                      cy="7"
+                      r="4"
+                    />
+                    <line
+                      x1="19"
+                      x2="19"
+                      y1="8"
+                      y2="14"
+                    />
+                    <line
+                      x1="22"
+                      x2="16"
+                      y1="11"
+                      y2="11"
+                    />
+                  </svg>
+                  Sign Up
+                </button>
+              </div>
+              <div
+                aria-labelledby="radix-:r17:-trigger-login"
+                class="flex-1 outline-none"
+                data-orientation="horizontal"
+                data-slot="tabs-content"
+                data-state="active"
+                id="radix-:r17:-content-login"
+                role="tabpanel"
+                style="animation-duration: 0s;"
+                tabindex="0"
+              >
+                <form
+                  class="space-y-4"
+                >
+                  <div
+                    class="space-y-2"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 text-gray-700"
+                      data-slot="label"
+                      for="login-email"
+                    >
+                      Email Address
+                    </label>
+                    <div
+                      class="relative"
+                    >
+                      <svg
+                        class="lucide lucide-mail absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="16"
+                          rx="2"
+                          width="20"
+                          x="2"
+                          y="4"
+                        />
+                        <path
+                          d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                        />
+                      </svg>
+                      <input
+                        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                        data-slot="input"
+                        id="login-email"
+                        placeholder="you@example.com"
+                        required=""
+                        type="email"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="space-y-2"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 text-gray-700"
+                      data-slot="label"
+                      for="login-password"
+                    >
+                      Password
+                    </label>
+                    <div
+                      class="relative"
+                    >
+                      <svg
+                        class="lucide lucide-lock absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        fill="none"
+                        height="24"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="11"
+                          rx="2"
+                          ry="2"
+                          width="18"
+                          x="3"
+                          y="11"
+                        />
+                        <path
+                          d="M7 11V7a5 5 0 0 1 10 0v4"
+                        />
+                      </svg>
+                      <input
+                        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                        data-slot="input"
+                        id="login-password"
+                        placeholder="••••••••"
+                        required=""
+                        type="password"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center justify-between text-sm"
+                  >
+                    <label
+                      class="flex items-center gap-2 text-gray-600 cursor-pointer"
+                    >
+                      <input
+                        class="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        type="checkbox"
+                      />
+                      Remember me
+                    </label>
+                    <a
+                      class="text-red-600 hover:text-red-700"
+                      href="#"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <button
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20"
+                    data-slot="button"
+                    type="submit"
+                  >
+                    Log In to Synkra
+                  </button>
+                </form>
+              </div>
+              <div
+                aria-labelledby="radix-:r17:-trigger-signup"
+                class="flex-1 outline-none"
+                data-orientation="horizontal"
+                data-slot="tabs-content"
+                data-state="inactive"
+                hidden=""
+                id="radix-:r17:-content-signup"
+                role="tabpanel"
+                tabindex="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

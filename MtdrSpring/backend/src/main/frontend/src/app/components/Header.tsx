@@ -2,6 +2,8 @@ import { Bell, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
+const dataTestId: string = "Header";
+
 
 interface HeaderProps {
   title: string;
@@ -18,7 +20,7 @@ export default function Header({ title, subtitle, userName, userInitials }: Head
       <div className="px-8 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-slate-900">{title}</h1>
+            <h1 className="text-slate-900" data-testid={`${dataTestId}-Role`}>{title}</h1>
             {subtitle && <p className="text-sm text-slate-600 mt-1">{subtitle}</p>}
           </div>
 

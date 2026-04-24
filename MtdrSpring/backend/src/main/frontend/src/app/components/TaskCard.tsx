@@ -1,6 +1,7 @@
 import { Calendar, User } from 'lucide-react';
 import { Task, Priority } from '../api/taskDataApi';
 import { Badge } from './ui/badge';
+const dataTestId: string = "TaskCard";
 
 interface TaskCardProps {
   task: Task;
@@ -21,7 +22,7 @@ export default function TaskCard({ task, onClick, showAssignee = false }: TaskCa
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md transition-all cursor-pointer group" onClick={onClick}>
       <div className="flex items-start justify-between mb-3">
-        <h4 className="text-sm text-slate-900 leading-snug pr-2 group-hover:text-primary transition-colors">{task.title}</h4>
+        <h4 className="text-sm text-slate-900 leading-snug pr-2 group-hover:text-primary transition-colors" data-testid={`${dataTestId}-Title`}>{task.title}</h4>
         {task.priority === 'high' }
       </div>
 

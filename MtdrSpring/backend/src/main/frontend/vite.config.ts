@@ -20,5 +20,33 @@ export default defineConfig({
   },
   build: {
     outDir: 'build'
-  }
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    //setupFiles: ['./src/test/setup.ts'],
+    //pool: "forks",
+  },
 })
+
+
+/*import { defineConfig } from "vitest/config";
+
+// https://vite.dev/config/
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "jsdom",
+    tags: [
+      { name: "frontend", description: "Tesy written for frontend." },
+      { name: "backend", description: "Tesy written for backend." },
+      {
+        name: "db",
+        description: "Test for database queries",
+        timeout: 60_000,
+        priority: 1,
+      },
+    ],
+  },
+});
+*/

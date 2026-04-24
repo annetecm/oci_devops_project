@@ -1,0 +1,160 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StatsCard Component > Matches snapshot with default props 1`] = `
+<div>
+  <div
+    class="bg-white rounded-xl p-4 shadow-md border border-slate-200 hover:shadow-lg transition-shadow"
+  >
+    <div
+      class="flex items-center justify-between"
+    >
+      <div>
+        <p
+          class="text-sm text-slate-600 mb-1"
+        >
+          Tasks
+        </p>
+        <p
+          class="text-2xl text-slate-900"
+        >
+          5
+        </p>
+      </div>
+      <div
+        class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center"
+      >
+        <svg
+          class="lucide lucide-list-todo w-5 h-5 text-blue-600"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            height="6"
+            rx="1"
+            width="6"
+            x="3"
+            y="5"
+          />
+          <path
+            d="m3 17 2 2 4-4"
+          />
+          <path
+            d="M13 6h8"
+          />
+          <path
+            d="M13 12h8"
+          />
+          <path
+            d="M13 18h8"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`StatsCard Component > Matches snapshot with large value 1`] = `
+<div>
+  <div
+    class="bg-white rounded-xl p-4 shadow-md border border-slate-200 hover:shadow-lg transition-shadow"
+  >
+    <div
+      class="flex items-center justify-between"
+    >
+      <div>
+        <p
+          class="text-sm text-slate-600 mb-1"
+        >
+          Hours Worked
+        </p>
+        <p
+          class="text-2xl text-slate-900"
+        >
+          999
+        </p>
+      </div>
+      <div
+        class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center"
+      >
+        <svg
+          class="lucide lucide-clock w-5 h-5 text-purple-600"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <polyline
+            points="12 6 12 12 16 14"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`StatsCard Component > Matches snapshot with zero value 1`] = `
+<div>
+  <div
+    class="bg-white rounded-xl p-4 shadow-md border border-slate-200 hover:shadow-lg transition-shadow"
+  >
+    <div
+      class="flex items-center justify-between"
+    >
+      <div>
+        <p
+          class="text-sm text-slate-600 mb-1"
+        >
+          Completed
+        </p>
+        <p
+          class="text-2xl text-slate-900"
+        >
+          0
+        </p>
+      </div>
+      <div
+        class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"
+      >
+        <svg
+          class="lucide lucide-circle-check-big w-5 h-5 text-green-600"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M21.801 10A10 10 0 1 1 17 3.335"
+          />
+          <path
+            d="m9 11 3 3L22 4"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
