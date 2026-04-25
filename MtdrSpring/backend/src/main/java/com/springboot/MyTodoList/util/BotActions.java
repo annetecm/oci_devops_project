@@ -1,9 +1,13 @@
 package com.springboot.MyTodoList.util;
 
 import com.springboot.MyTodoList.model.Task;
+import com.springboot.MyTodoList.model.TelegramMessage;
+import com.springboot.MyTodoList.model.TelegramSummary;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.service.DeepSeekService;
 import com.springboot.MyTodoList.service.TaskService;
+import com.springboot.MyTodoList.service.TelegramMessageService;
+import com.springboot.MyTodoList.service.TelegramSummaryService;
 import com.springboot.MyTodoList.service.ToDoItemService;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -23,6 +27,9 @@ public class BotActions{
 
     private static final Logger logger = LoggerFactory.getLogger(BotActions.class);
     private static final DateTimeFormatter TASK_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final int DEFAULT_SUMMARIZE_WINDOW = 20;
+    private static final int MIN_SUMMARIZE_WINDOW = 5;
+    private static final int MAX_SUMMARIZE_WINDOW = 30;
     private static final Map<Long, TaskCreationState> taskCreationStates = new HashMap<>();
 
     String requestText;
@@ -35,12 +42,23 @@ public class BotActions{
     ToDoItemService todoService;
     TaskService taskService;
     DeepSeekService deepSeekService;
+    TelegramMessageService telegramMessageService;
+    TelegramSummaryService telegramSummaryService;
 
-    public BotActions(TelegramClient tc,ToDoItemService ts, TaskService taskSvc, DeepSeekService ds){
+    public BotActions(
+        TelegramClient tc,
+        ToDoItemService ts,
+        TaskService taskSvc,
+        DeepSeekService ds,
+        TelegramMessageService tmSvc,
+        TelegramSummaryService tsSvc
+    ){
         telegramClient = tc;
         todoService = ts;
         taskService = taskSvc;
         deepSeekService = ds;
+        telegramMessageService = tmSvc;
+        telegramSummaryService = tsSvc;
         exit  = false;
     }
 
@@ -185,16 +203,61 @@ public class BotActions{
         exit = true;
     }
 
-    public void fnElse(){
-        if(exit)
-            return;
-        ToDoItem newItem = new ToDoItem();
-        newItem.setDescription(requestText);
-        newItem.setCreation_ts(OffsetDateTime.now());
-        newItem.setDone(false);
-        todoService.addToDoItem(newItem);
 
-        BotHelper.sendMessageToTelegram(chatId, BotMessages.NEW_ITEM_ADDED.getMessage(), telegramClient, null);
+    public void fnSummarize() {
+        if (exit || requestText == null) {
+            return;
+        }
+
+        String trimmed = requestText.trim();
+        String lowered = trimmed.toLowerCase();
+        String summarizeCommand = BotCommands.SUMMARIZE.getCommand();
+        if (!(lowered.equals(summarizeCommand) || lowered.startsWith(summarizeCommand + " "))) {
+            return;
+        }
+
+        if (telegramUserId == null || !taskService.isTelegramUserLinked(telegramUserId)) {
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.TELEGRAM_ACCOUNT_NOT_LINKED.getMessage(), telegramClient);
+            exit = true;
+            return;
+        }
+
+        Integer requestedWindow = parseSummaryWindow(trimmed);
+        if (requestedWindow == null) {
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.SUMMARIZE_USAGE.getMessage(), telegramClient);
+            exit = true;
+            return;
+        }
+
+        if (requestedWindow < MIN_SUMMARIZE_WINDOW || requestedWindow > MAX_SUMMARIZE_WINDOW) {
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.SUMMARIZE_INVALID_RANGE.getMessage(), telegramClient);
+            exit = true;
+            return;
+        }
+
+        List<TelegramMessage> recentMessages = telegramMessageService.findRecentMessages(chatId, requestedWindow);
+        if (recentMessages.isEmpty()) {
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.SUMMARIZE_NO_MESSAGES.getMessage(), telegramClient);
+            exit = true;
+            return;
+        }
+
+        try {
+            List<TelegramMessage> relatedMessages = telegramMessageService.findRelatedMessages(chatId, recentMessages, 3);
+            TelegramSummary summary = telegramSummaryService.generateAndSaveSummary(
+                chatId,
+                telegramUserId,
+                requestedWindow,
+                recentMessages,
+                relatedMessages
+            );
+            BotHelper.sendMessageToTelegram(chatId, formatSummaryReply(summary), telegramClient);
+        } catch (Exception ex) {
+            logger.error("Error generating Telegram summary for chat {}", chatId, ex);
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.SUMMARIZE_FAILED.getMessage(), telegramClient);
+        } finally {
+            exit = true;
+        }
     }
 
     public void fnLLM(){
@@ -493,6 +556,38 @@ public class BotActions{
         if (label.equals(BotLabels.STATUS_IN_PROGRESS.getLabel())) return "in_progress";
         if (label.equals(BotLabels.STATUS_CLOSED.getLabel())) return "closed";
         return null;
+    }
+
+    private Integer parseSummaryWindow(String commandText) {
+        String[] parts = commandText.split("\\s+");
+        if (parts.length == 1) {
+            return DEFAULT_SUMMARIZE_WINDOW;
+        }
+        if (parts.length != 2) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(parts[1]);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private String formatSummaryReply(TelegramSummary summary) {
+        return "Summary\n"
+            + valueOrNone(summary.getSummaryText())
+            + "\n\nDecisions\n"
+            + valueOrNone(summary.getDecisionsText())
+            + "\n\nAction Items\n"
+            + valueOrNone(summary.getActionItemsText());
+    }
+
+    private String valueOrNone(String value) {
+        if (value == null || value.isBlank()) {
+            return "None identified";
+        }
+        return value;
     }
 
 

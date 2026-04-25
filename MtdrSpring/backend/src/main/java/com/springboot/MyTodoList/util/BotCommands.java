@@ -7,6 +7,7 @@ public enum BotCommands {
 	TODO_LIST("/todolist"),
 	WHO_AM_I("/whoami"),
 	PENDING_TASKS("/pendingtasks"),
+	SUMMARIZE("/summarize"),
 	ADD_ITEM("/additem"),
 	ADD_TASK("/addtask"),
 	CREATE_TASK("/createtask"),
