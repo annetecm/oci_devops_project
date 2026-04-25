@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class SpaController {
 
     @GetMapping({
+        "/",
+        "/login",
         "/manager",
         "/manager/**",
         "/developer",

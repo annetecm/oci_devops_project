@@ -48,6 +48,9 @@ frontend/build
 
 frontend/package-lock.json
 frontend/npm-debug.log*
+
+# Secrets / sensitive config
+MtdrSpring/backend/src/main/resources/application.properties
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 /MtdrSpring/backend/wallet

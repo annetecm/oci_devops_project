@@ -2,6 +2,7 @@ import { Bell, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
   title: string;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, userName, userInitials }: HeaderProps) {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   return (
     <header className="bg-white border-b border-slate-200 shadow-sm">
@@ -38,7 +40,7 @@ export default function Header({ title, subtitle, userName, userInitials }: Head
               </Avatar>
             </div>
 
-            <Button variant="ghost" size="icon" className="hover:bg-slate-100 text-slate-600" onClick={() => navigate('/')}>
+            <Button variant="ghost" size="icon" className="hover:bg-slate-100 text-slate-600" onClick={() => { signOut(); navigate('/'); }}>
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
