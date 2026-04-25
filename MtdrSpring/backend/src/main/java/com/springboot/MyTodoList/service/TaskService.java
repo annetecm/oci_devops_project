@@ -2,10 +2,13 @@ package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.repository.TaskRepository;
+import com.springboot.MyTodoList.util.TaskCreationState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +75,65 @@ public class TaskService {
 
     public List<Task> findAllTasks() {
         return taskRepository.findAll();
+    }
+
+    public List<Task> findPendingTasks() {
+        return taskRepository.findPendingTasks();
+    }
+
+    public boolean isTelegramUserLinked(Long telegramUserId) {
+        if (telegramUserId == null) {
+            return false;
+        }
+        return taskRepository.countTelegramAccountByTelegramUserId(telegramUserId) > 0;
+    }
+
+    public boolean isTelegramUserDeveloper(Long telegramUserId) {
+        if (telegramUserId == null) {
+            return false;
+        }
+        return taskRepository.countDeveloperByTelegramUserId(telegramUserId) > 0;
+    }
+
+    public List<Task> findPendingTasksByTelegramUserId(Long telegramUserId) {
+        if (telegramUserId == null) {
+            return List.of();
+        }
+        return taskRepository.findPendingTasksByTelegramUserId(telegramUserId);
+    }
+
+    public Task createTaskFromBotWithAllFields(TaskCreationState state, Long telegramUserId) {
+        // Resolve developer ID from Telegram user ID
+        Integer developerID = taskRepository.findDeveloperIdByTelegramUserId(telegramUserId);
+        if (developerID == null) {
+            throw new IllegalStateException("Developer not found for Telegram user ID: " + telegramUserId);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Task task = new Task();
+        task.setName(state.getName());
+        task.setDescription(state.getDescription());
+        task.setStatus(state.getStatus());
+        task.setTaskType(state.getTaskType());
+        task.setStartDate(now);
+        
+        // Parse deadline from string (YYYY-MM-DD) to LocalDateTime
+        try {
+            LocalDate deadlineDate = LocalDate.parse(state.getDeadline());
+            task.setDeadline(deadlineDate.atTime(LocalTime.of(23, 59, 59)));
+        } catch (Exception e) {
+            task.setDeadline(now.plusDays(7)); // fallback to 7 days from now
+        }
+        
+        task.setDeveloperID(developerID);
+        task.setEstimatedTime(state.getEstimatedTime());
+        task.setPriority(state.getPriority());
+        task.setProjectID(state.getProjectId());
+        task.setSprint(state.getSprint());
+        task.setCreatedAt(now);
+        task.setUpdatedAt(now);
+        
+        return taskRepository.save(task);
     }
 
     public Optional<Task> findTaskById(int id) {

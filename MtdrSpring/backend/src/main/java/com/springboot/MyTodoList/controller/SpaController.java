@@ -1,7 +1,7 @@
 package com.springboot.MyTodoList.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Forwards all unmatched routes to index.html so React Router can handle
@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SpaController {
 
-    @RequestMapping(value = {
+    @GetMapping({
         "/manager",
         "/manager/**",
         "/developer",
-        "/developer/**"
+        "/developer/**",
+        "/developer/{developerId}",
+        "/developer/task/{taskId}"
     })
     public String spa() {
         return "forward:/index.html";
