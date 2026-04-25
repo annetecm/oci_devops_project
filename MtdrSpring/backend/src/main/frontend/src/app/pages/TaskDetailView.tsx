@@ -26,6 +26,8 @@ import {
   deleteTask,
 } from '../api/taskDataApi';
 import { useEffect, useState } from 'react';
+const dataTestId: string = "TaskDetailView";
+
 
 const priorityConfig = {
   high: { color: 'text-red-700', bgColor: 'bg-red-100 border-red-200', label: 'High Priority' },
@@ -201,7 +203,9 @@ export default function TaskDetailView() {
                   placeholder="Task title"
                 />
               ) : (
-                <h1 className="text-slate-900 text-2xl">{task.title}</h1>
+                <h1 className="text-slate-900 text-2xl" data-testid={`${dataTestId}-Title`}>
+                  {task.title}
+                </h1>
               )}
               {isEditing ? (
                 <textarea
@@ -238,6 +242,7 @@ export default function TaskDetailView() {
                     className="bg-primary hover:bg-primary/90"
                     onClick={isEditing ? handleSave : handleEditStart}
                     disabled={isSaving}
+                    data-testid={`${dataTestId}-Edit-SaveButton`}
                   >
                     {isEditing ? (
                       <>

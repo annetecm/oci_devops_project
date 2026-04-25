@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import DeveloperSprintTasksChart from "./DeveloperSprintTasksChart";
 import '@testing-library/jest-dom';
 
-describe("A list of tasks completed per sprint. Ensure that the minimum information is present in each ticket: Task Name, Developer Name, Estimated Hours, Actual Hours.", () => {
+describe("A list of tasks completed per sprint. Ensure that the minimum information is present in each ticket: Task Name, Developer Name, Estimated Hours, Actual Hours", () => {
     test("It should display completed tasks per sprint", () => {
         const mockTasks = [
             {

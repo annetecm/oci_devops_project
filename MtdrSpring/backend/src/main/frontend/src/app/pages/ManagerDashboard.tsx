@@ -16,6 +16,7 @@ import {
   fetchTasks,
   getStats,
 } from '../api/taskDataApi';
+const dataTestId: string = "ManagerDashboard";
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
@@ -198,7 +199,9 @@ export default function ManagerDashboard() {
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-slate-700">Average Tasks / Sprint</p>
-                <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
+                <span className="text-xs text-slate-500" data-testid={`${dataTestId}-TeamAvgasks`}>
+                  Team avg: {overallAvgTasks}
+                </span>
               </div>
               <div className="space-y-1.5">
                 {devAvgTasks.map((dev) => (
@@ -213,7 +216,9 @@ export default function ManagerDashboard() {
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-slate-700">Average Hours / Sprint</p>
-                <span className="text-xs text-slate-500">Team avg: {overallAvgHours}h</span>
+                <span className="text-xs text-slate-500" data-testid={`${dataTestId}-TeamAvgHours`}>
+                  Team avg: {overallAvgHours}h
+                </span>
               </div>
               <div className="space-y-1.5">
                 {devAvgHours.map((dev) => (

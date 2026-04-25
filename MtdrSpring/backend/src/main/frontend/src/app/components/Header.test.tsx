@@ -17,7 +17,11 @@ describe("Customized dashboard based on the worker's role", () => {
                 />
             </MemoryRouter>
         );
-        const dashboardTitle = screen.getByTestId('Header-Role');
-        expect(dashboardTitle).toHaveTextContent("Developer Dashboard");
+        const customRole = screen.getByTestId('Header-Role');
+        expect(customRole).toHaveTextContent("Developer Dashboard");
+        const customName = screen.getByTestId('Header-Name');
+        expect(customName).toHaveTextContent("Hector");
+        const customInitials = screen.getByTestId('Header-Initials');
+        expect(customInitials).toHaveTextContent("HA");
     });
 });
