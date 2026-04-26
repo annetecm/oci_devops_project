@@ -2,11 +2,15 @@ package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.model.TelegramMessage;
 import com.springboot.MyTodoList.model.TelegramSummary;
+import com.springboot.MyTodoList.repository.TelegramAccountRepository;
 import com.springboot.MyTodoList.repository.TelegramSummaryRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +25,16 @@ public class TelegramSummaryService {
     private static final int MAX_PROMPT_MESSAGE_LENGTH = 500;
 
     private final TelegramSummaryRepository telegramSummaryRepository;
+    private final TelegramAccountRepository telegramAccountRepository;
     private final GeminiService geminiService;
 
-    public TelegramSummaryService(TelegramSummaryRepository telegramSummaryRepository, GeminiService geminiService) {
+    public TelegramSummaryService(
+        TelegramSummaryRepository telegramSummaryRepository,
+        TelegramAccountRepository telegramAccountRepository,
+        GeminiService geminiService
+    ) {
         this.telegramSummaryRepository = telegramSummaryRepository;
+        this.telegramAccountRepository = telegramAccountRepository;
         this.geminiService = geminiService;
     }
 
@@ -62,23 +72,20 @@ public class TelegramSummaryService {
     }
 
     public String buildPrompt(List<TelegramMessage> recentMessages, List<TelegramMessage> relatedMessages) {
+        Map<Long, String> displayNamesByTelegramUserId = resolveDisplayNames(recentMessages, relatedMessages);
         StringBuilder prompt = new StringBuilder();
         prompt.append("You are summarizing a Telegram group discussion for a software team.\n");
         prompt.append("Reply only in English.\n");
-        prompt.append("Always return exactly these three sections with these headings:\n");
-        prompt.append("Summary\nDecisions\nAction Items\n");
-        prompt.append("If a section has no content, write 'None identified'.\n");
-        prompt.append("Do not invent decisions or action items.\n\n");
+        prompt.append("Return only one section with this exact heading:\n");
+        prompt.append("Summary:\n- ...\n");
+        prompt.append("Write a concise, readable summary in 2 to 5 bullet points.\n");
+        prompt.append("Mention important commitments, due dates, and newly created tasks inside the summary when relevant.\n");
+        prompt.append("Do not add Decisions or Action Items sections.\n");
+        prompt.append("Do not repeat the title inside the bullet content.\n\n");
         prompt.append("Recent Messages:\n");
 
         for (TelegramMessage message : recentMessages) {
-            prompt.append("[")
-                .append(message.getCreatedAt() != null ? message.getCreatedAt().format(MESSAGE_TIME_FORMATTER) : "unknown-time")
-                .append("] User ")
-                .append(message.getTelegramUserId())
-                .append(": ")
-                .append(truncateForPrompt(message.getMessageText()))
-                .append("\n");
+            appendPromptMessage(prompt, message, displayNamesByTelegramUserId);
         }
 
         prompt.append("\nRelated Older Context:\n");
@@ -86,48 +93,221 @@ public class TelegramSummaryService {
             prompt.append("None identified.\n");
         } else {
             for (TelegramMessage message : relatedMessages) {
-                prompt.append("[")
-                    .append(message.getCreatedAt() != null ? message.getCreatedAt().format(MESSAGE_TIME_FORMATTER) : "unknown-time")
-                    .append("] User ")
-                    .append(message.getTelegramUserId())
-                    .append(": ")
-                    .append(truncateForPrompt(message.getMessageText()))
-                    .append("\n");
+                appendPromptMessage(prompt, message, displayNamesByTelegramUserId);
             }
         }
 
         return prompt.toString();
     }
 
+    private void appendPromptMessage(StringBuilder prompt, TelegramMessage message, Map<Long, String> displayNamesByTelegramUserId) {
+        prompt.append("[")
+            .append(message.getCreatedAt() != null ? message.getCreatedAt().format(MESSAGE_TIME_FORMATTER) : "unknown-time")
+            .append("] ")
+            .append(resolveDisplayName(message.getTelegramUserId(), displayNamesByTelegramUserId))
+            .append(": ")
+            .append(truncateForPrompt(message.getMessageText()))
+            .append("\n");
+    }
+
+    private Map<Long, String> resolveDisplayNames(List<TelegramMessage> recentMessages, List<TelegramMessage> relatedMessages) {
+        LinkedHashSet<Long> telegramUserIds = new LinkedHashSet<>();
+        collectTelegramUserIds(telegramUserIds, recentMessages);
+        collectTelegramUserIds(telegramUserIds, relatedMessages);
+
+        if (telegramUserIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return telegramAccountRepository.findDisplayNamesByTelegramUserIds(List.copyOf(telegramUserIds)).stream()
+            .filter(row -> row.getTelegramUserId() != null)
+            .collect(Collectors.toMap(
+                TelegramAccountRepository.TelegramUserDisplayProjection::getTelegramUserId,
+                TelegramAccountRepository.TelegramUserDisplayProjection::getDisplayName,
+                (left, right) -> left
+            ));
+    }
+
+    private void collectTelegramUserIds(LinkedHashSet<Long> target, List<TelegramMessage> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+
+        messages.stream()
+            .map(TelegramMessage::getTelegramUserId)
+            .filter(id -> id != null)
+            .forEach(target::add);
+    }
+
+    private String resolveDisplayName(Long telegramUserId, Map<Long, String> displayNamesByTelegramUserId) {
+        if (telegramUserId == null) {
+            return "Unknown user";
+        }
+
+        String displayName = displayNamesByTelegramUserId.get(telegramUserId);
+        if (displayName == null || displayName.isBlank()) {
+            return "User " + telegramUserId;
+        }
+
+        return displayName.trim();
+    }
+
     private ParsedSummary parseSummary(String llmResponse) {
-        String summary = extractSection(llmResponse, "Summary", "Decisions");
-        String decisions = extractSection(llmResponse, "Decisions", "Action Items");
-        String actionItems = extractSection(llmResponse, "Action Items", null);
+        ParsedSummary parsed = parseStructuredSections(llmResponse);
+        String summary = parsed.getSummaryText();
 
         if (summary == null || summary.isBlank()) {
             summary = llmResponse == null || llmResponse.isBlank() ? "Summary unavailable." : llmResponse.trim();
         }
 
-        return new ParsedSummary(summary.trim(), normalizeEmpty(decisions), normalizeEmpty(actionItems));
+        return new ParsedSummary(normalizeEmpty(summary), null, null);
     }
 
-    private String extractSection(String input, String sectionName, String nextSectionName) {
+    private ParsedSummary parseStructuredSections(String input) {
         if (input == null || input.isBlank()) {
+            return new ParsedSummary(null, null, null);
+        }
+
+        String normalized = input
+            .replace("\r\n", "\n")
+            .replace("```markdown", "")
+            .replace("```text", "")
+            .replace("```", "")
+            .trim();
+
+        String currentSection = null;
+        List<String> summaryLines = new ArrayList<>();
+        List<String> decisionLines = new ArrayList<>();
+        List<String> actionItemLines = new ArrayList<>();
+
+        for (String rawLine : normalized.split("\n")) {
+            String line = rawLine == null ? "" : rawLine.trim();
+            if (line.isBlank()) {
+                continue;
+            }
+
+            String detectedSection = detectSection(line);
+            if (detectedSection != null) {
+                currentSection = detectedSection;
+                String remainder = stripSectionHeading(line, detectedSection);
+                if (!remainder.isBlank()) {
+                    appendSectionLine(currentSection, remainder, summaryLines, decisionLines, actionItemLines);
+                }
+                continue;
+            }
+
+            if (currentSection != null) {
+                appendSectionLine(currentSection, line, summaryLines, decisionLines, actionItemLines);
+            }
+        }
+
+        return new ParsedSummary(
+            cleanSectionText(summaryLines),
+            cleanSectionText(decisionLines),
+            cleanSectionText(actionItemLines)
+        );
+    }
+
+    private String detectSection(String line) {
+        String cleaned = normalizeHeadingText(line);
+        if (cleaned.matches("(?i)^summary\\s*:?.*$")) {
+            return "Summary";
+        }
+        if (cleaned.matches("(?i)^decisions\\s*:?.*$")) {
+            return "Decisions";
+        }
+        if (cleaned.matches("(?i)^action\\s+items\\s*:?.*$")) {
+            return "Action Items";
+        }
+        return null;
+    }
+
+    private String stripSectionHeading(String line, String sectionName) {
+        String withoutMarkdown = line
+            .replaceAll("^[#\\-*\\s]+", "")
+            .replaceAll("[*_`#]+", "")
+            .trim();
+
+        String pattern;
+        switch (sectionName) {
+            case "Summary":
+                pattern = "(?i)^summary\\s*:?\\s*";
+                break;
+            case "Decisions":
+                pattern = "(?i)^decisions\\s*:?\\s*";
+                break;
+            case "Action Items":
+                pattern = "(?i)^action\\s+items\\s*:?\\s*";
+                break;
+            default:
+                pattern = "^";
+                break;
+        }
+
+        return withoutMarkdown.replaceFirst(pattern, "").trim();
+    }
+
+    private String normalizeHeadingText(String line) {
+        return line
+            .replaceAll("^[#\\-*\\s]+", "")
+            .replaceAll("[*_`#]+", "")
+            .trim();
+    }
+
+    private void appendSectionLine(
+        String sectionName,
+        String line,
+        List<String> summaryLines,
+        List<String> decisionLines,
+        List<String> actionItemLines
+    ) {
+        switch (sectionName) {
+            case "Summary":
+                summaryLines.add(line);
+                break;
+            case "Decisions":
+                decisionLines.add(line);
+                break;
+            case "Action Items":
+                actionItemLines.add(line);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private String cleanSectionText(List<String> lines) {
+        if (lines == null || lines.isEmpty()) {
             return null;
         }
 
-        String patternText;
-        if (nextSectionName == null) {
-            patternText = "(?is)(?:^|\\n)\\s*#*\\s*\\*{0,2}" + Pattern.quote(sectionName) + "\\*{0,2}\\s*:?\\s*(.*)$";
-        } else {
-            patternText = "(?is)(?:^|\\n)\\s*#*\\s*\\*{0,2}" + Pattern.quote(sectionName) + "\\*{0,2}\\s*:?\\s*(.*?)\\s*(?:\\n\\s*#*\\s*\\*{0,2}" + Pattern.quote(nextSectionName) + "\\*{0,2}\\s*:?)";
+        List<String> cleanedLines = lines.stream()
+            .map(this::sanitizeSectionLine)
+            .filter(line -> !line.isBlank())
+            .collect(Collectors.toList());
+
+        if (cleanedLines.isEmpty()) {
+            return null;
         }
 
-        Matcher matcher = Pattern.compile(patternText).matcher(input);
-        if (matcher.find()) {
-            return matcher.group(1).trim();
+        return String.join("\n", cleanedLines).trim();
+    }
+
+    private String sanitizeSectionLine(String line) {
+        if (line == null) {
+            return "";
         }
-        return null;
+
+        String cleaned = line.trim();
+        cleaned = cleaned.replaceAll("^[*_#\\s]+", "").trim();
+
+        if (cleaned.matches("(?i)^summary\\s*:?.*$")
+            || cleaned.matches("(?i)^decisions\\s*:?.*$")
+            || cleaned.matches("(?i)^action\\s+items\\s*:?.*$")) {
+            return "";
+        }
+
+        return cleaned;
     }
 
     private String toNullableSection(String sectionText) {

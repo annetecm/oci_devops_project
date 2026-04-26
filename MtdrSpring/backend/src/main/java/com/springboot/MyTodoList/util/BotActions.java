@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -564,12 +565,38 @@ public class BotActions{
     }
 
     private String formatSummaryReply(TelegramSummary summary) {
-        return "Summary\n"
-            + valueOrNone(summary.getSummaryText())
-            + "\n\nDecisions\n"
-            + valueOrNone(summary.getDecisionsText())
-            + "\n\nAction Items\n"
-            + valueOrNone(summary.getActionItemsText());
+        return "📝 Team Chat Summary\n\n"
+            + formatSectionBody(summary.getSummaryText());
+    }
+
+    private String formatSectionBody(String value) {
+        String normalized = valueOrNone(value).replace("\r\n", "\n").trim();
+        if ("None identified".equalsIgnoreCase(normalized)) {
+            return "- No important updates found.";
+        }
+
+        List<String> lines = Arrays.stream(normalized.split("\n"))
+            .map(String::trim)
+            .filter(line -> !line.isBlank())
+            .collect(Collectors.toList());
+
+        if (lines.isEmpty()) {
+            return "- None identified";
+        }
+
+        return lines.stream()
+            .map(this::ensureBulletPrefix)
+            .collect(Collectors.joining("\n"));
+    }
+
+    private String ensureBulletPrefix(String line) {
+        if (line.startsWith("- ") || line.startsWith("* ")) {
+            return line;
+        }
+        if (line.matches("^\\d+\\.\\s+.*")) {
+            return line;
+        }
+        return "- " + line;
     }
 
     private String valueOrNone(String value) {
