@@ -1,7 +1,7 @@
 package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.config.BotProps;
-import com.springboot.MyTodoList.service.DeepSeekService;
+import com.springboot.MyTodoList.service.GeminiService;
 import com.springboot.MyTodoList.service.TaskService;
 import com.springboot.MyTodoList.service.TelegramMessageService;
 import com.springboot.MyTodoList.service.TelegramSummaryService;
@@ -24,7 +24,7 @@ public class ToDoItemBotController  implements SpringLongPollingBot, LongPolling
 	private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
 	private ToDoItemService toDoItemService;
 	private TaskService taskService;
-	private DeepSeekService deepSeekService;
+	private GeminiService geminiService;
 	private TelegramMessageService telegramMessageService;
 	private TelegramSummaryService telegramSummaryService;
 	private final TelegramClient telegramClient;
@@ -42,7 +42,7 @@ public class ToDoItemBotController  implements SpringLongPollingBot, LongPolling
 		BotProps bp,
 		ToDoItemService tsvc,
 		TaskService taskSvc,
-		DeepSeekService ds,
+		GeminiService gs,
 		TelegramMessageService tms,
 		TelegramSummaryService tss,
 		TelegramClient telegramClient
@@ -51,7 +51,7 @@ public class ToDoItemBotController  implements SpringLongPollingBot, LongPolling
 		this.telegramClient = telegramClient;
 		toDoItemService = tsvc;
 		taskService = taskSvc;
-		deepSeekService = ds;
+		geminiService = gs;
 		telegramMessageService = tms;
 		telegramSummaryService = tss;
 	}
@@ -81,7 +81,7 @@ public class ToDoItemBotController  implements SpringLongPollingBot, LongPolling
 			telegramClient,
 			toDoItemService,
 			taskService,
-			deepSeekService,
+			geminiService,
 			telegramMessageService,
 			telegramSummaryService
 		);

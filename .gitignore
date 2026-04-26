@@ -51,6 +51,7 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 /MtdrSpring/backend/wallet
+MtdrSpring/backend/src/main/resources/application.properties
 
 # Docker dev files
 /DockerfileDev
@@ -64,3 +65,4 @@ frontend/yarn-error.log*
 # accidental npm lockfiles outside frontend
 /package-lock.json
 /MtdrSpring/backend/package-lock.json
+

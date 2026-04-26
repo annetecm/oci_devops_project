@@ -3,31 +3,32 @@ package com.springboot.MyTodoList.service;
 import com.springboot.MyTodoList.model.TelegramMessage;
 import com.springboot.MyTodoList.model.TelegramSummary;
 import com.springboot.MyTodoList.repository.TelegramSummaryRepository;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.hc.core5.http.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TelegramSummaryService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TelegramSummaryService.class);
     private static final DateTimeFormatter MESSAGE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String NONE_IDENTIFIED = "None identified";
     private static final int MAX_PROMPT_MESSAGE_LENGTH = 500;
 
     private final TelegramSummaryRepository telegramSummaryRepository;
-    private final DeepSeekService deepSeekService;
+    private final GeminiService geminiService;
 
-    public TelegramSummaryService(TelegramSummaryRepository telegramSummaryRepository, DeepSeekService deepSeekService) {
+    public TelegramSummaryService(TelegramSummaryRepository telegramSummaryRepository, GeminiService geminiService) {
         this.telegramSummaryRepository = telegramSummaryRepository;
-        this.deepSeekService = deepSeekService;
+        this.geminiService = geminiService;
     }
 
-    public TelegramSummary generateAndSaveSummary(Long chatId, Long requestedByTelegramUserId, int windowSize, List<TelegramMessage> recentMessages)
-        throws IOException, ParseException {
+    public TelegramSummary generateAndSaveSummary(Long chatId, Long requestedByTelegramUserId, int windowSize, List<TelegramMessage> recentMessages) {
         return generateAndSaveSummary(chatId, requestedByTelegramUserId, windowSize, recentMessages, List.of());
     }
 
@@ -37,19 +38,27 @@ public class TelegramSummaryService {
         int windowSize,
         List<TelegramMessage> recentMessages,
         List<TelegramMessage> relatedMessages
-    ) throws IOException, ParseException {
-        String llmResponse = deepSeekService.generateText(buildPrompt(recentMessages, relatedMessages));
-        ParsedSummary parsedSummary = parseSummary(llmResponse);
+    ) {
+        try {
+            logger.info("Generating summary using Gemini API for chat {}", chatId);
+            String llmResponse = geminiService.generateText(buildPrompt(recentMessages, relatedMessages));
+            ParsedSummary parsedSummary = parseSummary(llmResponse);
 
-        TelegramSummary summary = new TelegramSummary();
-        summary.setChatId(chatId);
-        summary.setRequestedByTelegramUserId(requestedByTelegramUserId);
-        summary.setRequestedAt(LocalDateTime.now());
-        summary.setWindowSize(windowSize);
-        summary.setSummaryText(parsedSummary.getSummaryText());
-        summary.setDecisionsText(toNullableSection(parsedSummary.getDecisionsText()));
-        summary.setActionItemsText(toNullableSection(parsedSummary.getActionItemsText()));
-        return telegramSummaryRepository.save(summary);
+            TelegramSummary summary = new TelegramSummary();
+            summary.setChatId(chatId);
+            summary.setRequestedByTelegramUserId(requestedByTelegramUserId);
+            summary.setRequestedAt(LocalDateTime.now());
+            summary.setWindowSize(windowSize);
+            summary.setSummaryText(parsedSummary.getSummaryText());
+            summary.setDecisionsText(toNullableSection(parsedSummary.getDecisionsText()));
+            summary.setActionItemsText(toNullableSection(parsedSummary.getActionItemsText()));
+            
+            logger.info("Summary generated and saved successfully for chat {}", chatId);
+            return telegramSummaryRepository.save(summary);
+        } catch (Exception ex) {
+            logger.error("Error generating summary using Gemini API for chat {}", chatId, ex);
+            throw new RuntimeException("Failed to generate summary: " + ex.getMessage(), ex);
+        }
     }
 
     public String buildPrompt(List<TelegramMessage> recentMessages, List<TelegramMessage> relatedMessages) {

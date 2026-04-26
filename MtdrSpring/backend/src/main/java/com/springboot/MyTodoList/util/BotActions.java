@@ -4,7 +4,7 @@ import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.model.TelegramMessage;
 import com.springboot.MyTodoList.model.TelegramSummary;
 import com.springboot.MyTodoList.model.ToDoItem;
-import com.springboot.MyTodoList.service.DeepSeekService;
+import com.springboot.MyTodoList.service.GeminiService;
 import com.springboot.MyTodoList.service.TaskService;
 import com.springboot.MyTodoList.service.TelegramMessageService;
 import com.springboot.MyTodoList.service.TelegramSummaryService;
@@ -41,7 +41,7 @@ public class BotActions{
 
     ToDoItemService todoService;
     TaskService taskService;
-    DeepSeekService deepSeekService;
+    GeminiService geminiService;
     TelegramMessageService telegramMessageService;
     TelegramSummaryService telegramSummaryService;
 
@@ -49,14 +49,14 @@ public class BotActions{
         TelegramClient tc,
         ToDoItemService ts,
         TaskService taskSvc,
-        DeepSeekService ds,
+        GeminiService gs,
         TelegramMessageService tmSvc,
         TelegramSummaryService tsSvc
     ){
         telegramClient = tc;
         todoService = ts;
         taskService = taskSvc;
-        deepSeekService = ds;
+        geminiService = gs;
         telegramMessageService = tmSvc;
         telegramSummaryService = tsSvc;
         exit  = false;
@@ -89,17 +89,6 @@ public class BotActions{
     public ToDoItemService getTodoService(){
         return todoService;
     }
-
-    public void setDeepSeekService(DeepSeekService dssvc){
-        deepSeekService = dssvc;
-    }
-
-    public DeepSeekService getDeepSeekService(){
-        return deepSeekService;
-    }
-
-
-    
 
     public void fnStart() {
         if (!(requestText.equals(BotCommands.START_COMMAND.getCommand()) || requestText.equals(BotLabels.SHOW_MAIN_SCREEN.getLabel())) || exit) 
@@ -253,7 +242,7 @@ public class BotActions{
             );
             BotHelper.sendMessageToTelegram(chatId, formatSummaryReply(summary), telegramClient);
         } catch (Exception ex) {
-            logger.error("Error generating Telegram summary for chat {}", chatId, ex);
+            logger.error("Error generating Telegram summary for chat {} using Gemini API", chatId, ex);
             BotHelper.sendMessageToTelegram(chatId, BotMessages.SUMMARIZE_FAILED.getMessage(), telegramClient);
         } finally {
             exit = true;
@@ -268,9 +257,9 @@ public class BotActions{
         String prompt = "Dame los datos del clima en mty";
         String out = "<empty>";
         try{
-            out = deepSeekService.generateText(prompt);
+            out = geminiService.generateText(prompt);
         }catch(Exception exc){
-
+            logger.error("Error calling Gemini API from /llm", exc);
         }
 
         BotHelper.sendMessageToTelegram(chatId, "LLM: "+out, telegramClient, null);
