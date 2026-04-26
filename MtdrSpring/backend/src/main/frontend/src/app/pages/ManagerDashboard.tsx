@@ -16,15 +16,24 @@ import {
   fetchTasks,
   getStats,
 } from '../api/taskDataApi';
+import { useAuth } from '../context/AuthContext';
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
   const [selectedSprint, setSelectedSprint] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey] = useState(0);
+
+  // Auth guard: must be logged in as a manager
+  useEffect(() => {
+    if (!user || user.role !== 'manager') {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     async function loadData() {

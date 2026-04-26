@@ -17,16 +17,29 @@ import {
   getStats,
   getTasksByDeveloper,
 } from '../api/taskDataApi';
+import { useAuth } from '../context/AuthContext';
 
 export default function DeveloperDashboard() {
   const navigate = useNavigate();
   const { developerId } = useParams<{ developerId: string }>();
+  const { user } = useAuth();
   const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Auth guard: must be logged in as a developer whose id matches the URL
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+    if (user.role !== 'developer' || String(user.developerId) !== developerId) {
+      navigate('/');
+    }
+  }, [user, developerId, navigate]);
 
   useEffect(() => {
     async function loadData() {
