@@ -61,18 +61,18 @@ public class AuthService {
     public LoginSuccessResponse verifyOtp(String sessionToken, String otp) {
         OtpSession session = otpStore.get(sessionToken);
 
-        if (session == null || Instant.now().isAfter(session.expiry())) {
+        if (session == null || Instant.now().isAfter(session.getExpiry())) {
             otpStore.remove(sessionToken);
             throw new IllegalArgumentException("OTP expired or invalid. Please log in again.");
         }
 
-        if (!session.otp().equals(otp)) {
+        if (!session.getOtp().equals(otp)) {
             throw new IllegalArgumentException("Incorrect OTP. Please try again.");
         }
 
         otpStore.remove(sessionToken);
 
-        Integer userId = session.userId();
+        Integer userId = session.getUserId();
         UserGeneral user = userGeneralRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
 
@@ -126,5 +126,27 @@ public class AuthService {
 
     // ─── Internal record to hold pending OTP sessions ─────────────────────────
 
-    private record OtpSession(String otp, Integer userId, Instant expiry) {}
+    private static final class OtpSession {
+        private final String otp;
+        private final Integer userId;
+        private final Instant expiry;
+
+        private OtpSession(String otp, Integer userId, Instant expiry) {
+            this.otp = otp;
+            this.userId = userId;
+            this.expiry = expiry;
+        }
+
+        private String getOtp() {
+            return otp;
+        }
+
+        private Integer getUserId() {
+            return userId;
+        }
+
+        private Instant getExpiry() {
+            return expiry;
+        }
+    }
 }
