@@ -64,10 +64,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
   // Only true when NO sprint/dev filter active
   const isGroupedMode = selectedDeveloper === 'all' && selectedSprint === 'all';
 
-  // ✅ Reshapes flat sprint+dev rows into one row per sprint with one key per developer.
-  // Only used at render time inside GroupedChart — state data is never changed.
-  // e.g. [{ sprint: 1, developer: "Alice", Completed: 2 }, { sprint: 1, developer: "Bob", Completed: 3 }]
-  //   → [{ name: "Sprint 1", Alice: 2, Bob: 3, _avgTrend: 2.5 }]
+ 
   const buildGroupedData = (flatData: ChartDataItem[], metricKey: string, trendKey: string): ChartDataItem[] => {
     const sprintMap = new Map<number, ChartDataItem>();
 
@@ -144,7 +141,6 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
     }
   }, [selectedSprint, selectedDeveloper]);
 
-  // generateChartData is 100% identical to the original — no changes
   const generateChartData = (tasks: BackendTask[], devs: DeveloperSummary[]) => {
     const allSprints = new Set<number>();
     tasks.forEach(task => {
@@ -306,9 +302,6 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
     );
   };
 
-  // ✅ GroupedChart: reshapes data at render time into one-row-per-sprint,
-  // renders one <Bar> per developer (each with their stable color) + avg trend line.
-  // Sprint-filtered mode uses Chart instead, so this is only ever called with all sprints.
   const GroupedChart = ({
     title,
     data,
@@ -343,7 +336,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
                 />
               ))
             }
-            {/* ✅ Team average trend line */}
+            {/*  Team average trend line */}
             {(selectedChartType === 'both' || selectedChartType === 'line') && (
               <Line
                 dataKey="_avgTrend"
@@ -473,7 +466,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
               const completed = devTasks.filter(t => t.status === 'closed').length;
               const hours = devTasks.reduce((sum, t) => sum + (t.timeSpent ?? 0), 0);
               const estimatedHours = devTasks.reduce((sum, t) => sum + (t.estimatedTime ?? 0), 0);
-              const cost = hours * 50;
+              const cost = hours * 24;
               return (
                 <div key={dev.id} className="bg-slate-50 rounded-lg p-4">
                   <p className="font-semibold text-base text-slate-900 mb-3">{dev.name}</p>
