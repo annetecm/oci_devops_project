@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import RoleSelection from "./pages/RoleSelection";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerDashboard2 from "./pages/ManagerDashboard2";
-import ManagerKanbanPage from "./pages/ManagerKanbanPAge";
+import ManagerKanbanPage from "./pages/ManagerKanbanPage";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
 import DeveloperTaskList from "./pages/DeveloperTaskList";
 import DeveloperKanbanPage from "./pages/DeveloperKanbanPage";
