@@ -234,7 +234,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
           const data = costsBySprintAndDev.get(`${sprint}_${devId}`);
           if (data) {
             const hours = task.timeSpent ?? 0;
-            const cost = hours * 50;
+            const cost = hours * 24;
             data.Cost += cost;
             data['Avg Cost'] += cost * 0.9;
           }
@@ -265,7 +265,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
         setCostsPerDeveloperData(sortedSprints.map(sprint => {
           const sprintTasks = devTasks.filter(t => (t.sprint ?? 0) === sprint);
           const hours = sprintTasks.reduce((sum, t) => sum + (t.timeSpent ?? 0), 0);
-          const cost = hours * 50;
+          const cost = hours * 24;
           return { name: `Sprint ${sprint}`, Cost: Math.round(cost), 'Avg Cost': Math.round(cost * 0.9) };
         }));
 
@@ -297,7 +297,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
       Array.from(hoursByCategory.entries()).map(([category, data]) => ({
         name: category,
         Hours: data.hours,
-        'Avg Hours': Math.round(data.hours / Math.max(data.count, 1)),
+        'Avg Hours': data.hours,
       }))
     );
   };
