@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { CheckCircle2, Clock, ListTodo, CalendarClock, AlertTriangle, Plus } from 'lucide-react';
-import Header from '../components/Header';
+import Header2 from '../components/Header2';
+import Sidebar from '../components/Sidebar';
 import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
@@ -29,6 +30,7 @@ export default function DeveloperDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Auth guard: must be logged in as a developer whose id matches the URL
   useEffect(() => {
@@ -89,24 +91,54 @@ export default function DeveloperDashboard() {
   const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
 
   if (isLoading) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-slate-600">Loading dashboard data...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
+        <Header2
+          title="Developer Dashboard"
+          subtitle="Manage tasks and track progress"
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <div className="p-8 text-slate-600">Loading dashboard data...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-red-600">{error}</div>;
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
+        <Header2
+          title="Developer Dashboard"
+          subtitle="Manage tasks and track progress"
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <div className="p-8 text-red-600">{error}</div>
+      </div>
+    );
   }
 
   if (!selectedDeveloper) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-red-600">Developer not found</div>;
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
+        <Header2
+          title="Developer Dashboard"
+          subtitle="Manage tasks and track progress"
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <div className="p-8 text-red-600">Developer not found</div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
+      <Header2
         title="Developer Dashboard"
         subtitle={`Manage tasks and track progress for ${selectedDeveloper.name}`}
-        userName={selectedDeveloper.name}
-        userInitials={selectedDeveloper.initials}
+        onMenuClick={() => setSidebarOpen(true)}
       />
 
       <main className="p-8">
