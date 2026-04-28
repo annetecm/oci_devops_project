@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckCircle2, Clock, ListTodo, AlertCircle, Folder } from 'lucide-react';
-import Header from '../components/Header';
+import Header2 from '../components/Header2';
+import Sidebar from '../components/Sidebar';
 import StatsCard from '../components/StatsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import TeamPerformanceChart from '../components/TeamPerformanceChart';
@@ -25,6 +26,7 @@ export default function ManagerDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -101,27 +103,46 @@ export default function ManagerDashboard() {
     : '0.0';
 
   const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
- 
 
   const handleTaskClick = (taskId: string) => {
     navigate(`/developer/task/${taskId}`, { state: { role: 'manager' } });
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-slate-600">Loading dashboard data...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="manager" />
+        <Header2
+          title="Manager Dashboard"
+          subtitle="Monitor team progress and track project metrics"
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <div className="p-8 text-slate-600">Loading dashboard data...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-red-600">{error}</div>;
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="manager" />
+        <Header2
+          title="Manager Dashboard"
+          subtitle="Monitor team progress and track project metrics"
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <div className="p-8 text-red-600">{error}</div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="manager" />
+      <Header2
         title="Manager Dashboard"
         subtitle="Monitor team progress and track project metrics"
-        userName="Monserrat Morales"
-        userInitials="MM"
+        onMenuClick={() => setSidebarOpen(true)}
       />
 
       <main className="p-6">
@@ -182,13 +203,13 @@ export default function ManagerDashboard() {
 
         {/* Sprint Progress + Team Overview */}
         <div className="bg-white rounded-xl p-4 shadow-md border border-slate-200 mb-5">
-          <h3 className="text-slate-900 mb-3">Sprint Progress</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-3">Sprint Progress</h3>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="text-center p-3 bg-slate-50 rounded-lg">
-              <p className="text-xl text-slate-900 mb-1">
+              <p className="text-3xl font-bold text-slate-900 mb-1">
                 {completionRate}%
               </p>
-              <p className="text-sm text-slate-600">Completion Rate</p>
+              <p className="text-base font-medium text-slate-600">Completion Rate</p>
             </div>
             
           </div>
@@ -197,14 +218,14 @@ export default function ManagerDashboard() {
             {/* Completed Tasks per Developer */}
             <div className="p-3 bg-red-50 rounded-lg border border-red-100">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700">Average Tasks / Sprint</p>
+                <p className="text-base font-semibold text-slate-900">Average Tasks / Sprint</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
               </div>
               <div className="space-y-1.5">
                 {devAvgTasks.map((dev) => (
                   <div key={dev.name} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">{dev.name}</span>
-                    <span className="text-sm text-slate-900">{dev.avg} tasks</span>
+                    <span className="text-base text-slate-600">{dev.name}</span>
+                    <span className="text-base font-medium text-slate-900">{dev.avg} tasks</span>
                   </div>
                 ))}
               </div>
