@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { useEffect, useState } from 'react';
 import { fetchDeveloperSummaries, DeveloperSummary } from '../api/taskDataApi';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
   title: string;
@@ -15,32 +16,30 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, userName, userInitials, onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const [currentUser, setCurrentUser] = useState<{name: string, initials: string} | null>(null);
 
   useEffect(() => {
-    // If userName and userInitials are provided, use them
+    // If userName and userInitials are provided as props, use them
     if (userName && userInitials) {
       setCurrentUser({ name: userName, initials: userInitials });
       return;
     }
 
-    // Otherwise, fetch the first developer as the current user (manager)
-    async function fetchCurrentUser() {
-      try {
-        const developers = await fetchDeveloperSummaries();
-        if (developers.length > 0) {
-          const manager = developers[0]; // Assume first developer is the manager
-          setCurrentUser({ name: manager.name, initials: manager.initials });
-        }
-      } catch (error) {
-        console.error('Failed to fetch current user:', error);
-        // Fallback to default
-        setCurrentUser({ name: 'Manager', initials: 'M' });
-      }
+    // Otherwise, use the authenticated user from AuthContext
+    if (authUser) {
+      const initials = authUser.name
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase();
+      setCurrentUser({ name: authUser.name, initials });
+      return;
     }
 
-    fetchCurrentUser();
-  }, [userName, userInitials]);
+    // Fallback to default
+    setCurrentUser({ name: 'Manager', initials: 'M' });
+  }, [userName, userInitials, authUser]);
 
   if (!currentUser) {
     return (
