@@ -76,13 +76,15 @@ public class TelegramSummaryService {
         StringBuilder prompt = new StringBuilder();
         prompt.append("You are summarizing a Telegram group discussion for a software team.\n");
         prompt.append("Reply only in English.\n");
-        prompt.append("Return only one section with this exact heading:\n");
+        prompt.append("Return two sections with this exact heading:\n");
         prompt.append("Summary:\n- ...\n");
         prompt.append("Write a concise, readable summary in 2 to 5 bullet points.\n");
         prompt.append("Mention important commitments, due dates, and newly created tasks inside the summary when relevant.\n");
         prompt.append("Do not add Decisions or Action Items sections.\n");
         prompt.append("Do not repeat the title inside the bullet content.\n\n");
         prompt.append("Recent Messages:\n");
+        prompt.append("\n\n\uD83D\uDCDD Suggested tasks:\n- ...\n");
+        prompt.append("Recommend which tasks shpould be created based on the discussion and generated summary\n");
 
         for (TelegramMessage message : recentMessages) {
             appendPromptMessage(prompt, message, displayNamesByTelegramUserId);
