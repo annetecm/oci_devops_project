@@ -16,7 +16,7 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, userName, userInitials, onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
+  const { user: authUser, signOut } = useAuth();
   const [currentUser, setCurrentUser] = useState<{name: string, initials: string} | null>(null);
 
   useEffect(() => {
@@ -114,7 +114,10 @@ export default function Header({ title, subtitle, userName, userInitials, onMenu
               variant="ghost"
               size="icon"
               className="hover:bg-slate-100 text-slate-600"
-              onClick={() => navigate('/')}
+              onClick={() => {
+                signOut();
+                navigate('/');
+              }}
             >
               <LogOut className="w-5 h-5" />
             </Button>
