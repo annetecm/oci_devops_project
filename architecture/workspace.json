@@ -1,0 +1,1689 @@
+{
+  "configuration" : { },
+  "description" : "Architecture model for the Synkra project management platform.",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# 1. Microservices as the Primary Architecture Style\n\nDate: 2026-05-12\n\n## Status\n\nAccepted\n\n- Consulted: Annete, Hector, Monserrat, Sarah, Anett\n## Context.\n\nThe system is a project management tool for software development teams, integrating a web portal, a Telegram chatbot, AI-powered conversation analysis, and task management. The requirements specify:\n\n- Independent deployable components: React.js frontend, Spring Boot backend services, Telegram chatbot, and an AI analysis module.\n- Containerization of all components as Docker images deployed via Kubernetes on Oracle Cloud Infrastructure (OCI).\n- A REST API as the communication contract between the frontend and the backend.\n- Support for approximately 50 concurrent users with horizontal autoscaling when needed.\n- Role-based access control (RBAC) requiring isolated authorization logic per service.\n- Two distinct user-facing channels (web portal and Telegram), each with different interaction patterns and data flows.\n\n## Decision.\n\nWe use Microservices as the dominant architectural style for the whole system.\nIt directly satisfies the requirement to package each component as a Docker image, deploy through Kubernetes on OCI, expose each service through its own REST API, and scale each component independently. The two distinct user facing channels map onto two independently deployable services which are the React frontend and the Telegram Bot Service, and the Dashboard Backend and AI capability are isolated in its own service that can be updated or swapped without touching the rest of the system.\n\n\n## Alternatives considered.\n\n**Big Ball of Mud** was dismissed immediately. It represents a complete absence of intentional architecture, characterized by logic wired directly to database calls with no internal structure. Our SRS explicitly calls for modular, maintainable, and secure components, which is incompatible with this pattern.\n\n**Layered** is well-suited for organizing code within a single deployable unit but does not address multi-channel deployment. It cannot express the separation between the web portal and the Telegram bot as independently operated components.\n\n**Pipeline** is oriented toward sequential data transformation workflows, such as ETL pipelines or stream processors. The system's primary interaction model is interactive request/response from users not a transformation pipeline so this style does not fit.\n\n**Microkernel** is designed around a stable core with swappable plugins. The system has no plugin ecosystem requirement at this stage; all integrations (Telegram, AI, Oracle) are fixed by the formative partner constraints, making the extensibility overhead of this style unnecessary.\n\n**Service-based** was considered as a less complex alternative to microservices. However, it typically groups services at a coarser granularity and shares a single deployment pipeline. The Telegram channel and the web portal require distinct deployment cycles, scaling policies, and runtime lifecycles, which a service-based topology would not cleanly support.\n\n**Event-driven** would require an asynchronous message broker. Those infrastructure werent requested, and the AI conversation analysis flow uses synchronous calls triggered by the command rather than an event stream. Introducing a broker would add significant operational complexity.\n\n**Space-based** is engineered for extreme horizontal scalability under massive concurrent load typically thousands of simultaneous users. We target approximately 50 concurrent users, making this style heavily over-engineered and operationally impractical for a student team.\n\n**SOA** relies on an enterprise service bus as the central communication backbone. We use REST APIs between components with no ESB layer, which doesn't match SOA topology.\n\n\n\n\n\n## Consequences.\n\n**Positive:**\n- Each service can be scaled, updated, and redeployed independently, satisfying the OCI requirement.\n- The Telegram Bot Service and the AI Analysis Service can evolve or be replaced without affecting the web portal.\n- Clear ownership boundaries align with the team's modular code structure (backend / frontend / chatbot / database).\n- HTTPS between all services and an API Gateway enforces the security policy across components.\n\n**Negative:**\n- Having multiple services running separately makes the system harder to debug: each service writes its own logs, calls between services add delays, and changing how two services talk to each other must be done carefully to avoid breaking things.\n- Setting up Kubernetes on OCI takes time to learn and adds configuration work that a simpler application would not require.\n\n- Deploying a fix requires pushing and restarting the affected service container, which takes longer than simply restarting a single local application.\n\n- If the connection between two services fails mid-operation, the system may end up in an inconsistent state.\n\n -Cost",
+      "date" : "2026-05-12T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "status" : "Accepted",
+      "title" : "Microservices as the Primary Architecture Style"
+    }, {
+      "content" : "# 2. Availability over Simplicity\n\nDate: 2026-03-09\n\n## Status\n\nAccepted\n\n- Consulted: Héctor, Anett, Monserrat, Sarah, Annete\n## Context.\n \nThe project management tool supports communication between Project Leaders and Developers through a web portal and a Telegram chatbot. The platform acts as a central coordination hub for assigning tasks, tracking progress, and capturing conversation-driven action items.\n \nBecause the system is the single point of coordination for development teams, any service interruption could prevent Project Leaders from assigning tasks, Developers from receiving updates, or the Telegram bot from capturing task instructions mid-conversation. This directly impacts team productivity and project tracking reliability.\n \nAchieving higher availability requires additional architectural mechanisms: rolling deployments, Kubernetes liveness and readiness health checks, retry and reconnection logic between services, and redundancy at the infrastructure level via OCI Fault Domains. These mechanisms increase architectural complexity and operational effort compared to a simpler single-node design.\n \nThe team is a student group operating under a fixed timeline and limited infrastructure budget, which makes over-engineering a real risk. However, the academic evaluation criteria explicitly requires a deployable, continuously available system on OCI.\n \n## Decision.\n \nWe prioritize **availability over simplicity**.\n \nThe system is deployed on Oracle Kubernetes Engine (OKE) with:\n- A dedicated OCI Load Balancer routing traffic into the cluster.\n- All microservices containerized and managed as Kubernetes Pods, enabling automatic restarts on failure.\n- A single Availability Domain with one Fault Domain (expandable) to isolate workloads from hardware failures.\n- A Service Gateway providing private, reliable access to Oracle Autonomous Database and Google Gemini without routing through the public internet.\n- Health checks and rolling deployment strategies configured at the pod level to eliminate downtime during updates.\nThe added complexity is justified because uninterrupted access to the application is a client requirement, not an optional quality attribute.\n \n## Alternatives Considered.\n \n**Simplicity (single deployable unit):** A monolithic or single-VM deployment would minimize infrastructure components and reduce configuration overhead. It would be faster to develop and easier to debug locally. However, any deployment or failure would take the entire system offline, directly violating the availability requirement. Ruled out.\n \n**Availability with full multi-region redundancy:** Deploying across multiple OCI regions would maximize fault tolerance. We believe this would result impractical for the scope of the proyect and the resources within the project timeline and budget. Ruled out as over-engineering.\n\n## Consequences.\n \n**Positive:**\n- The system remains accessible during pod restarts, rolling updates, and minor infrastructure failures.\n- Task tracking and Telegram bot interactions are not interrupted by partial service disruptions.\n- Communication between managers and developers through the portal and chatbot will be\nmore reliable.\n\n**Negative:**\n- The architecture becomes more complex due to additional availability mechanisms.\n- Development and operational effort increases because monitoring, deployment strategies, and failure handling must be implemented\n- Infrastructure and OCI compute costs are higher than a single-VM deployment.",
+      "date" : "2026-03-09T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "2",
+      "status" : "Accepted",
+      "title" : "Availability over Simplicity"
+    } ]
+  },
+  "id" : 1,
+  "lastModifiedDate" : "2026-05-14T23:29:11Z",
+  "model" : {
+    "deploymentNodes" : [ {
+      "description" : "Third-party external platforms.",
+      "environment" : "Production",
+      "id" : "27",
+      "infrastructureNodes" : [ {
+        "description" : "React SPA served to end users.",
+        "environment" : "Production",
+        "id" : "28",
+        "name" : "Web Page",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.externalServices.webPageNode"
+        },
+        "relationships" : [ {
+          "description" : "Sends HTTPS requests to",
+          "destinationId" : "38",
+          "id" : "106",
+          "sourceId" : "28",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        } ],
+        "tags" : "Element,Infrastructure Node"
+      }, {
+        "description" : "Telegram messaging platform and bot API.",
+        "environment" : "Production",
+        "id" : "29",
+        "name" : "Telegram Bot API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.externalServices.telegramNode"
+        },
+        "relationships" : [ {
+          "description" : "Sends conversation history for embedding generation to",
+          "destinationId" : "32",
+          "id" : "116",
+          "sourceId" : "29",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        }, {
+          "description" : "Delivers bot updates to",
+          "destinationId" : "50",
+          "id" : "118",
+          "sourceId" : "29",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        } ],
+        "tags" : "Element,Infrastructure Node"
+      }, {
+        "description" : "LLM: gemini-2.5-flash",
+        "environment" : "Production",
+        "id" : "30",
+        "name" : "Google Gemini API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.externalServices.geminiNode"
+        },
+        "tags" : "Element,Infrastructure Node"
+      } ],
+      "instances" : "1",
+      "name" : "External Services",
+      "properties" : {
+        "structurizr.dsl.identifier" : "production.externalServices"
+      },
+      "tags" : "Element,Deployment Node"
+    }, {
+      "children" : [ {
+        "containerInstances" : [ {
+          "containerId" : "26",
+          "environment" : "Production",
+          "id" : "35",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.ociRegion.databaseNode.dbInstance"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "description" : "Persistent store for chat messages, vector embeddings, and cosine similarity search.",
+        "environment" : "Production",
+        "id" : "34",
+        "instances" : "1",
+        "name" : "Oracle Autonomous Database 23ai",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.ociRegion.databaseNode"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "Oracle Database 23ai"
+      }, {
+        "children" : [ {
+          "children" : [ {
+            "children" : [ {
+              "children" : [ {
+                "containerInstances" : [ {
+                  "containerId" : "7",
+                  "environment" : "Production",
+                  "id" : "42",
+                  "instanceId" : 1,
+                  "properties" : {
+                    "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.frontendPod.frontendInstance"
+                  },
+                  "relationships" : [ {
+                    "description" : "Sends HTTPS requests to",
+                    "destinationId" : "38",
+                    "id" : "107",
+                    "sourceId" : "42",
+                    "tags" : "Relationship",
+                    "technology" : "HTTPS"
+                  } ],
+                  "tags" : "Container Instance"
+                } ],
+                "description" : "Runs the React SPA.",
+                "environment" : "Production",
+                "id" : "41",
+                "instances" : "1",
+                "name" : "Frontend Pod",
+                "properties" : {
+                  "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.frontendPod"
+                },
+                "tags" : "Element,Deployment Node",
+                "technology" : "Docker Container"
+              }, {
+                "containerInstances" : [ {
+                  "containerId" : "8",
+                  "environment" : "Production",
+                  "id" : "44",
+                  "instanceId" : 1,
+                  "properties" : {
+                    "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.backendPod.backendInstance"
+                  },
+                  "relationships" : [ {
+                    "description" : "Routes outbound backend calls via",
+                    "destinationId" : "33",
+                    "id" : "110",
+                    "sourceId" : "44",
+                    "tags" : "Relationship",
+                    "technology" : "HTTPS"
+                  } ],
+                  "tags" : "Container Instance"
+                } ],
+                "description" : "Runs the Spring Boot REST API gateway.",
+                "environment" : "Production",
+                "id" : "43",
+                "instances" : "1",
+                "name" : "Backend API Pod",
+                "properties" : {
+                  "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.backendPod"
+                },
+                "tags" : "Element,Deployment Node",
+                "technology" : "Docker Container"
+              }, {
+                "containerInstances" : [ {
+                  "containerId" : "23",
+                  "environment" : "Production",
+                  "id" : "46",
+                  "instanceId" : 1,
+                  "properties" : {
+                    "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.taskPod.taskInstance"
+                  },
+                  "relationships" : [ {
+                    "description" : "Routes outbound task calls via",
+                    "destinationId" : "33",
+                    "id" : "111",
+                    "sourceId" : "46",
+                    "tags" : "Relationship",
+                    "technology" : "HTTPS"
+                  } ],
+                  "tags" : "Container Instance"
+                } ],
+                "description" : "Runs task lifecycle management microservice.",
+                "environment" : "Production",
+                "id" : "45",
+                "instances" : "1",
+                "name" : "Task Service Pod",
+                "properties" : {
+                  "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.taskPod"
+                },
+                "tags" : "Element,Deployment Node",
+                "technology" : "Docker Container"
+              }, {
+                "containerInstances" : [ {
+                  "containerId" : "24",
+                  "environment" : "Production",
+                  "id" : "48",
+                  "instanceId" : 1,
+                  "properties" : {
+                    "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.aiPod.aiInstance"
+                  },
+                  "relationships" : [ {
+                    "description" : "Routes outbound AI calls via",
+                    "destinationId" : "33",
+                    "id" : "112",
+                    "sourceId" : "48",
+                    "tags" : "Relationship",
+                    "technology" : "HTTPS"
+                  } ],
+                  "tags" : "Container Instance"
+                } ],
+                "description" : "Runs RAG-based NLP and summarization microservice.",
+                "environment" : "Production",
+                "id" : "47",
+                "instances" : "1",
+                "name" : "AI Processing Pod",
+                "properties" : {
+                  "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.aiPod"
+                },
+                "tags" : "Element,Deployment Node",
+                "technology" : "Docker Container"
+              }, {
+                "containerInstances" : [ {
+                  "containerId" : "25",
+                  "environment" : "Production",
+                  "id" : "50",
+                  "instanceId" : 1,
+                  "properties" : {
+                    "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.botPod.botInstance"
+                  },
+                  "relationships" : [ {
+                    "description" : "Routes outbound bot messages via",
+                    "destinationId" : "33",
+                    "id" : "113",
+                    "sourceId" : "50",
+                    "tags" : "Relationship",
+                    "technology" : "HTTPS"
+                  } ],
+                  "tags" : "Container Instance"
+                } ],
+                "description" : "Runs the Telegram bot microservice.",
+                "environment" : "Production",
+                "id" : "49",
+                "instances" : "1",
+                "name" : "Telegram Bot Pod",
+                "properties" : {
+                  "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode.botPod"
+                },
+                "tags" : "Element,Deployment Node",
+                "technology" : "Docker Container"
+              } ],
+              "description" : "Kubernetes worker node running all Synkra microservices.",
+              "environment" : "Production",
+              "id" : "40",
+              "instances" : "1",
+              "name" : "Worker Node",
+              "properties" : {
+                "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster.workerNode"
+              },
+              "tags" : "Element,Deployment Node",
+              "technology" : "Virtual Machine"
+            } ],
+            "description" : "Hosts Synkra application workloads.",
+            "environment" : "Production",
+            "id" : "39",
+            "instances" : "1",
+            "name" : "Oracle Kubernetes Engine",
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.okeCluster"
+            },
+            "tags" : "Element,Deployment Node",
+            "technology" : "OKE / Kubernetes"
+          } ],
+          "description" : "Fault-isolated domain for application workloads.",
+          "environment" : "Production",
+          "id" : "37",
+          "infrastructureNodes" : [ {
+            "description" : "Routes HTTPS traffic to Synkra services.",
+            "environment" : "Production",
+            "id" : "38",
+            "name" : "OCI Load Balancer",
+            "properties" : {
+              "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain.loadBalancer"
+            },
+            "relationships" : [ {
+              "description" : "Routes traffic to frontend",
+              "destinationId" : "42",
+              "id" : "108",
+              "sourceId" : "38",
+              "tags" : "Relationship",
+              "technology" : "HTTPS"
+            }, {
+              "description" : "Routes traffic to backend API",
+              "destinationId" : "44",
+              "id" : "109",
+              "sourceId" : "38",
+              "tags" : "Relationship",
+              "technology" : "HTTPS"
+            } ],
+            "tags" : "Element,Infrastructure Node"
+          } ],
+          "instances" : "1",
+          "name" : "Fault Domain 1",
+          "properties" : {
+            "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain.faultDomain"
+          },
+          "tags" : "Element,Deployment Node",
+          "technology" : "OCI Fault Domain"
+        } ],
+        "description" : "Primary availability domain.",
+        "environment" : "Production",
+        "id" : "36",
+        "instances" : "1",
+        "name" : "Availability Domain 1",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.ociRegion.availabilityDomain"
+        },
+        "tags" : "Element,Deployment Node",
+        "technology" : "OCI Availability Domain"
+      } ],
+      "description" : "Primary OCI region hosting Synkra infrastructure.",
+      "environment" : "Production",
+      "id" : "31",
+      "infrastructureNodes" : [ {
+        "description" : "Generates vector embeddings using ALL_MiniLM_L12_V2 for RAG-based semantic search.",
+        "environment" : "Production",
+        "id" : "32",
+        "name" : "OCI AI Embeddings",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.ociRegion.ociAiNode"
+        },
+        "relationships" : [ {
+          "description" : "Stores generated vector embeddings in",
+          "destinationId" : "35",
+          "id" : "117",
+          "sourceId" : "32",
+          "tags" : "Relationship",
+          "technology" : "OCI SDK"
+        } ],
+        "tags" : "Element,Infrastructure Node"
+      }, {
+        "description" : "Provides private access to Oracle services and Google Gemini without traversing the internet.",
+        "environment" : "Production",
+        "id" : "33",
+        "name" : "Service Gateway",
+        "properties" : {
+          "structurizr.dsl.identifier" : "production.ociRegion.serviceGateway"
+        },
+        "relationships" : [ {
+          "description" : "Forwards prompts to",
+          "destinationId" : "30",
+          "id" : "114",
+          "sourceId" : "33",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        }, {
+          "description" : "Persists and retrieves data via",
+          "destinationId" : "35",
+          "id" : "115",
+          "sourceId" : "33",
+          "tags" : "Relationship",
+          "technology" : "SQL / Oracle JDBC"
+        } ],
+        "tags" : "Element,Infrastructure Node"
+      } ],
+      "instances" : "1",
+      "name" : "Oracle Cloud Region - Queretaro",
+      "properties" : {
+        "structurizr.dsl.identifier" : "production.ociRegion"
+      },
+      "tags" : "Element,Deployment Node",
+      "technology" : "Oracle Cloud Infrastructure"
+    } ],
+    "people" : [ {
+      "description" : "Monitors team tasks and productivity stats via the web portal; communicates with developers on Telegram.",
+      "id" : "1",
+      "name" : "Project Leader",
+      "properties" : {
+        "structurizr.dsl.identifier" : "projectLeader"
+      },
+      "relationships" : [ {
+        "description" : "Views team dashboards, productivity stats, and sends messages via",
+        "destinationId" : "6",
+        "id" : "51",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_pl_synkra"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Sends messages to developers using",
+        "destinationId" : "3",
+        "id" : "53",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_pl_telegram"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Views team dashboards, individual and general productivity stats, and logs in via",
+        "destinationId" : "6",
+        "id" : "58",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_pl_synkra"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Sends messages to developers through group chats on",
+        "destinationId" : "3",
+        "id" : "60",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_pl_telegram"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Opens dashboards and productivity graphs using",
+        "destinationId" : "7",
+        "id" : "65",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctr_pl_portal"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Sends messages to developers via group chats on",
+        "destinationId" : "3",
+        "id" : "67",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctr_pl_telegram"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person,ProjectLeader"
+    }, {
+      "description" : "Manages personal tasks via the web portal and Telegram bot; chats with the Project Leader in group chats.",
+      "id" : "2",
+      "name" : "Developer",
+      "properties" : {
+        "structurizr.dsl.identifier" : "developer"
+      },
+      "relationships" : [ {
+        "description" : "Manages tasks, views personal stats, and chats via",
+        "destinationId" : "6",
+        "id" : "52",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_dev_synkra"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Chats with Project Leader and interacts with bot using",
+        "destinationId" : "3",
+        "id" : "54",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_dev_telegram"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Logs in, creates, edits, and deletes tasks, views personal dashboard and stats via",
+        "destinationId" : "6",
+        "id" : "59",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_dev_synkra"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Chats with Project Leader, requests summaries, and manages tasks via bot commands on",
+        "destinationId" : "3",
+        "id" : "61",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_dev_telegram"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Views personal dashboard, creates/edits/deletes tasks using",
+        "destinationId" : "7",
+        "id" : "66",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctr_dev_portal"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Chats with Project Leader and issues bot commands on",
+        "destinationId" : "3",
+        "id" : "68",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctr_dev_telegram"
+        },
+        "sourceId" : "2",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person,Developer"
+    } ],
+    "softwareSystems" : [ {
+      "description" : "Third-party messaging platform used for group chats between the Project Leader and each Developer, and for private bot interactions.",
+      "documentation" : { },
+      "id" : "3",
+      "name" : "Telegram",
+      "properties" : {
+        "structurizr.dsl.identifier" : "telegram"
+      },
+      "relationships" : [ {
+        "description" : "Delivers Telegram bot updates to",
+        "destinationId" : "14",
+        "id" : "99",
+        "sourceId" : "3",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Delivers Telegram bot updates to",
+        "destinationId" : "8",
+        "id" : "100",
+        "linkedRelationshipId" : "99",
+        "sourceId" : "3",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Delivers Telegram bot updates to",
+        "destinationId" : "6",
+        "id" : "101",
+        "linkedRelationshipId" : "99",
+        "sourceId" : "3",
+        "technology" : "HTTPS"
+      } ],
+      "tags" : "Element,Software System,External"
+    }, {
+      "description" : "Cloud infrastructure hosting the Oracle Autonomous Database, OCI Container Registry, and Kubernetes cluster for application deployment.",
+      "documentation" : { },
+      "id" : "4",
+      "name" : "Oracle Cloud Infrastructure (OCI)",
+      "properties" : {
+        "structurizr.dsl.identifier" : "ociCloud"
+      },
+      "tags" : "Element,Software System,External"
+    }, {
+      "description" : "External LLM used by the AI Processing Service to generate task summaries, suggestions, and action items from conversation context.",
+      "documentation" : { },
+      "id" : "5",
+      "name" : "Google Gemini",
+      "properties" : {
+        "structurizr.dsl.identifier" : "gemini"
+      },
+      "tags" : "Element,Software System,External"
+    }, {
+      "containers" : [ {
+        "description" : "Single-page application that provides role-based dashboards, task management views, and performance graphs for both Project Leaders and Developers.",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "Web Portal",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.webPortal"
+        },
+        "relationships" : [ {
+          "description" : "Sends all API requests to",
+          "destinationId" : "8",
+          "id" : "69",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Authenticates users via",
+          "destinationId" : "9",
+          "id" : "80",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Manages tasks through",
+          "destinationId" : "10",
+          "id" : "81",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Retrieves dashboard statistics from",
+          "destinationId" : "11",
+          "id" : "82",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Manages to-do items through",
+          "destinationId" : "13",
+          "id" : "83",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Retrieves user information from",
+          "destinationId" : "12",
+          "id" : "84",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        } ],
+        "tags" : "Element,Container,WebBrowser",
+        "technology" : "React / JavaScript"
+      }, {
+        "components" : [ {
+          "description" : "Handles authentication endpoints.",
+          "documentation" : { },
+          "id" : "9",
+          "name" : "AuthController",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.authController"
+          },
+          "tags" : "Element,Component",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Handles CRUD operations for tasks.",
+          "documentation" : { },
+          "id" : "10",
+          "name" : "TaskController",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.taskController"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes tasks using",
+            "destinationId" : "19",
+            "id" : "85",
+            "sourceId" : "10",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Provides dashboard and productivity statistics.",
+          "documentation" : { },
+          "id" : "11",
+          "name" : "Dashboardcontroller",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.dashboardController"
+          },
+          "relationships" : [ {
+            "description" : "Retrieves productivity metrics from",
+            "destinationId" : "19",
+            "id" : "86",
+            "sourceId" : "11",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Handles user-related operations.",
+          "documentation" : { },
+          "id" : "12",
+          "name" : "UserController",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.userController"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes user data using",
+            "destinationId" : "18",
+            "id" : "87",
+            "sourceId" : "12",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Handles to-do item management.",
+          "documentation" : { },
+          "id" : "13",
+          "name" : "ToDoItemController",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.todoItemController"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes to-do items using",
+            "destinationId" : "22",
+            "id" : "88",
+            "sourceId" : "13",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Telegram bot controller handling Telegram commands and interactions.",
+          "documentation" : { },
+          "id" : "14",
+          "name" : "ToDoItemBotController",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.todoItemBotController"
+          },
+          "relationships" : [ {
+            "description" : "Processes Telegram messages using",
+            "destinationId" : "17",
+            "id" : "89",
+            "sourceId" : "14",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Requests conversation summaries from",
+            "destinationId" : "16",
+            "id" : "90",
+            "sourceId" : "14",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Sends Telegram bot responses via",
+            "destinationId" : "3",
+            "id" : "102",
+            "sourceId" : "14",
+            "tags" : "Relationship",
+            "technology" : "HTTPS"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Component"
+        }, {
+          "description" : "Communicates with Google Gemini for AI-generated summaries and task suggestions.",
+          "documentation" : { },
+          "id" : "15",
+          "name" : "GeminiService",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.geminiService"
+          },
+          "relationships" : [ {
+            "description" : "Requests AI-generated summaries and suggestions from",
+            "destinationId" : "5",
+            "id" : "104",
+            "sourceId" : "15",
+            "tags" : "Relationship",
+            "technology" : "HTTPS"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Service"
+        }, {
+          "description" : "Processes Telegram conversation history and generates summaries.",
+          "documentation" : { },
+          "id" : "16",
+          "name" : "TelegramSummaryService",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.telegramSummaryService"
+          },
+          "relationships" : [ {
+            "description" : "Requests AI-generated summaries from",
+            "destinationId" : "15",
+            "id" : "91",
+            "sourceId" : "16",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Stores generated summaries using",
+            "destinationId" : "21",
+            "id" : "93",
+            "sourceId" : "16",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Service"
+        }, {
+          "description" : "Stores and retrieves Telegram chat messages.",
+          "documentation" : { },
+          "id" : "17",
+          "name" : "TelegramMessageService",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.telegramMessageService"
+          },
+          "relationships" : [ {
+            "description" : "Stores Telegram messages using",
+            "destinationId" : "20",
+            "id" : "92",
+            "sourceId" : "17",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Service"
+        }, {
+          "description" : "Persistence access for users.",
+          "documentation" : { },
+          "id" : "18",
+          "name" : "UserRepository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.userRepository"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes data to",
+            "destinationId" : "26",
+            "id" : "94",
+            "sourceId" : "18",
+            "tags" : "Relationship",
+            "technology" : "SQL / Oracle JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Data JPA Repository"
+        }, {
+          "description" : "Persistence access for tasks.",
+          "documentation" : { },
+          "id" : "19",
+          "name" : "TaskRepository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.taskRepository"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes data to",
+            "destinationId" : "26",
+            "id" : "95",
+            "sourceId" : "19",
+            "tags" : "Relationship",
+            "technology" : "SQL / Oracle JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Data JPA Repository"
+        }, {
+          "description" : "Persistence access for Telegram messages.",
+          "documentation" : { },
+          "id" : "20",
+          "name" : "TelegramMessageRepository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.telegramMessageRepository"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes data to",
+            "destinationId" : "26",
+            "id" : "96",
+            "sourceId" : "20",
+            "tags" : "Relationship",
+            "technology" : "SQL / Oracle JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Data JPA Repository"
+        }, {
+          "description" : "Persistence access for Telegram summaries.",
+          "documentation" : { },
+          "id" : "21",
+          "name" : "TelegramSummaryRepository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.telegramSummaryRepository"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes data to",
+            "destinationId" : "26",
+            "id" : "97",
+            "sourceId" : "21",
+            "tags" : "Relationship",
+            "technology" : "SQL / Oracle JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Data JPA Repository"
+        }, {
+          "description" : "Persistence access for to-do items.",
+          "documentation" : { },
+          "id" : "22",
+          "name" : "ToDoItemRepository",
+          "properties" : {
+            "structurizr.dsl.identifier" : "synkra.backendApi.todoItemRepository"
+          },
+          "relationships" : [ {
+            "description" : "Reads and writes data to",
+            "destinationId" : "26",
+            "id" : "98",
+            "sourceId" : "22",
+            "tags" : "Relationship",
+            "technology" : "SQL / Oracle JDBC"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Spring Data JPA Repository"
+        } ],
+        "description" : "Central REST API gateway exposing task management, dashboard, Telegram bot, and AI-assisted endpoints.",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Backend API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.backendApi"
+        },
+        "relationships" : [ {
+          "description" : "Delegates task lifecycle operations to",
+          "destinationId" : "23",
+          "id" : "70",
+          "sourceId" : "8",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Forwards conversation history for analysis and summary generation to",
+          "destinationId" : "24",
+          "id" : "71",
+          "sourceId" : "8",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Reads and writes users, roles, teams, KPI data to",
+          "destinationId" : "26",
+          "id" : "72",
+          "sourceId" : "8",
+          "tags" : "Relationship",
+          "technology" : "SQL / Oracle JDBC"
+        }, {
+          "description" : "Sends Telegram bot responses via",
+          "destinationId" : "3",
+          "id" : "103",
+          "linkedRelationshipId" : "102",
+          "sourceId" : "8",
+          "technology" : "HTTPS"
+        }, {
+          "description" : "Requests AI-generated summaries and suggestions from",
+          "destinationId" : "5",
+          "id" : "105",
+          "linkedRelationshipId" : "104",
+          "sourceId" : "8",
+          "technology" : "HTTPS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java / Spring Boot"
+      }, {
+        "description" : "Domain service encapsulating all task lifecycle logic: create, read, update, delete, and assignment. Enforces business rules such as developer-only task ownership.",
+        "documentation" : { },
+        "id" : "23",
+        "name" : "Task Service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.taskService"
+        },
+        "relationships" : [ {
+          "description" : "Reads and writes tasks and project records to",
+          "destinationId" : "26",
+          "id" : "73",
+          "sourceId" : "23",
+          "tags" : "Relationship",
+          "technology" : "SQL / Oracle JDBC"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java / Spring Boot"
+      }, {
+        "description" : "Performs RAG-based NLP on conversation history using Oracle AI Vector Search with ALL-MiniLM-L6-v2 embeddings and Google Gemini for generation. Identifies task instructions and produces summaries.",
+        "documentation" : { },
+        "id" : "24",
+        "name" : "AI Processing Service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.aiService"
+        },
+        "relationships" : [ {
+          "description" : "Retrieves conversation history from",
+          "destinationId" : "26",
+          "id" : "74",
+          "sourceId" : "24",
+          "tags" : "Relationship",
+          "technology" : "SQL / Oracle JDBC"
+        }, {
+          "description" : "Queries vector embeddings via Oracle AI Vector Search for RAG retrieval",
+          "destinationId" : "26",
+          "id" : "75",
+          "sourceId" : "24",
+          "tags" : "Relationship",
+          "technology" : "SQL / JDBC"
+        }, {
+          "description" : "Sends prompts with conversation context and receives generated text from",
+          "destinationId" : "5",
+          "id" : "76",
+          "sourceId" : "24",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java / Spring Boot"
+      }, {
+        "description" : "Connects to the Telegram Bot API, routes incoming messages and commands to the appropriate internal service and sends responses back to Telegram.",
+        "documentation" : { },
+        "id" : "25",
+        "name" : "Telegram Bot Service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.botService"
+        },
+        "relationships" : [ {
+          "description" : "Sends and receives messages, commands, and button events via the Bot API using",
+          "destinationId" : "3",
+          "id" : "77",
+          "sourceId" : "25",
+          "tags" : "Relationship",
+          "technology" : "HTTPS"
+        }, {
+          "description" : "Forwards task commands and triggers AI analysis via",
+          "destinationId" : "8",
+          "id" : "78",
+          "sourceId" : "25",
+          "tags" : "Relationship",
+          "technology" : "JSON / HTTPS"
+        }, {
+          "description" : "Persists group-chat message history in",
+          "destinationId" : "26",
+          "id" : "79",
+          "sourceId" : "25",
+          "tags" : "Relationship",
+          "technology" : "SQL / Oracle JDBC"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Java / Spring Boot"
+      }, {
+        "description" : "Primary persistent store for users, roles, teams, projects, tasks, conversation history, and vector embeddings for RAG-based semantic search via Oracle AI Vector Search.",
+        "documentation" : { },
+        "id" : "26",
+        "name" : "Oracle Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "synkra.oracleDb"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "Oracle DB (OCI)"
+      } ],
+      "description" : "Web-based project management tool with AI-powered Telegram chatbot integration for task tracking and team communication.",
+      "documentation" : { },
+      "group" : "Synkra System",
+      "id" : "6",
+      "name" : "Synkra",
+      "properties" : {
+        "structurizr.dsl.identifier" : "synkra"
+      },
+      "relationships" : [ {
+        "description" : "Sends and receives messages via the Bot API",
+        "destinationId" : "3",
+        "id" : "55",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_synkra_tg"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Deployed on, uses Oracle DB",
+        "destinationId" : "4",
+        "id" : "56",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_synkra_oci"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Sends conversation context and receives generated summaries and task suggestions from",
+        "destinationId" : "5",
+        "id" : "57",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ls_synkra_gemini"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      }, {
+        "description" : "Connects to the Bot API to send/receive messages, commands, and notifications",
+        "destinationId" : "3",
+        "id" : "62",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_synkra_tg"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Persists all application data in Oracle Autonomous DB, hosted on",
+        "destinationId" : "4",
+        "id" : "63",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_synkra_oci"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Sends conversation context and receives AI-generated summaries and task suggestions from",
+        "destinationId" : "5",
+        "id" : "64",
+        "properties" : {
+          "structurizr.dsl.identifier" : "ctx_synkra_gemini"
+        },
+        "sourceId" : "6",
+        "tags" : "Relationship",
+        "technology" : "HTTPS"
+      } ],
+      "tags" : "Element,Software System,Internal"
+    } ]
+  },
+  "name" : "Synkra",
+  "properties" : {
+    "structurizr.inspection.error" : "33",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "componentViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "containerId" : "8",
+      "elements" : [ {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "20",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components",
+      "name" : "Component View: Synkra - Backend API",
+      "order" : 4,
+      "relationships" : [ {
+        "id" : "102"
+      }, {
+        "id" : "104"
+      }, {
+        "id" : "80"
+      }, {
+        "id" : "81"
+      }, {
+        "id" : "82"
+      }, {
+        "id" : "83"
+      }, {
+        "id" : "84"
+      }, {
+        "id" : "85"
+      }, {
+        "id" : "86"
+      }, {
+        "id" : "87"
+      }, {
+        "id" : "88"
+      }, {
+        "id" : "89"
+      }, {
+        "id" : "90"
+      }, {
+        "id" : "91"
+      }, {
+        "id" : "92"
+      }, {
+        "id" : "93"
+      }, {
+        "id" : "94"
+      }, {
+        "id" : "95"
+      }, {
+        "id" : "96"
+      }, {
+        "id" : "97"
+      }, {
+        "id" : "98"
+      }, {
+        "id" : "99"
+      } ]
+    } ],
+    "configuration" : {
+      "styles" : {
+        "elements" : [ {
+          "strokeWidth" : 3,
+          "tag" : "Boundary"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
+        }, {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "Container"
+        }, {
+          "background" : "#2e6da4",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#1a7abf",
+          "tag" : "Developer"
+        }, {
+          "background" : "#999999",
+          "color" : "#ffffff",
+          "tag" : "External"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Internal"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "fontSize" : 14,
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#0d4f8b",
+          "tag" : "ProjectLeader"
+        }, {
+          "background" : "#2d6a9f",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        }, {
+          "background" : "#5b9bd5",
+          "color" : "#ffffff",
+          "shape" : "WebBrowser",
+          "tag" : "WebBrowser"
+        } ],
+        "relationships" : [ {
+          "tag" : "Relationship",
+          "thickness" : 2
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "24",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "name" : "Container View: Synkra",
+      "order" : 3,
+      "relationships" : [ {
+        "id" : "100"
+      }, {
+        "id" : "103"
+      }, {
+        "id" : "105"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "66"
+      }, {
+        "id" : "67"
+      }, {
+        "id" : "68"
+      }, {
+        "id" : "69"
+      }, {
+        "id" : "70"
+      }, {
+        "id" : "71"
+      }, {
+        "id" : "72"
+      }, {
+        "id" : "73"
+      }, {
+        "id" : "74"
+      }, {
+        "id" : "75"
+      }, {
+        "id" : "76"
+      }, {
+        "id" : "77"
+      }, {
+        "id" : "78"
+      }, {
+        "id" : "79"
+      } ],
+      "softwareSystemId" : "6"
+    } ],
+    "deploymentViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "48",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "environment" : "Production",
+      "key" : "Deployment",
+      "name" : "Deployment View: Synkra - Production",
+      "order" : 5,
+      "relationships" : [ {
+        "id" : "106"
+      }, {
+        "id" : "107"
+      }, {
+        "id" : "108"
+      }, {
+        "id" : "109"
+      }, {
+        "id" : "110"
+      }, {
+        "id" : "111"
+      }, {
+        "id" : "112"
+      }, {
+        "id" : "113"
+      }, {
+        "id" : "114"
+      }, {
+        "id" : "115"
+      }, {
+        "id" : "116"
+      }, {
+        "id" : "117"
+      }, {
+        "id" : "118"
+      } ],
+      "softwareSystemId" : "6"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "description" : "Summarises how a Developer creates a task via the Web Portal.",
+      "elementId" : "8",
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "CreateTask",
+      "name" : "Dynamic View: Synkra - Backend API",
+      "order" : 6,
+      "relationships" : [ {
+        "description" : "Navigates to task creation form, fills and confirm it",
+        "id" : "66",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "POST /tasks with task data",
+        "id" : "81",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Persists new task using",
+        "id" : "85",
+        "order" : "3",
+        "response" : false
+      }, {
+        "description" : "INSERT INTO tasks",
+        "id" : "95",
+        "order" : "4",
+        "response" : false
+      }, {
+        "description" : "Returns saved task",
+        "id" : "95",
+        "order" : "5",
+        "response" : true
+      }, {
+        "description" : "Returns saved task to",
+        "id" : "85",
+        "order" : "6",
+        "response" : true
+      }, {
+        "description" : "Returns 201 Created with task data",
+        "id" : "81",
+        "order" : "7",
+        "response" : true
+      }, {
+        "description" : "Displays confirmation and updated task list",
+        "id" : "66",
+        "order" : "8",
+        "response" : true
+      } ]
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "name" : "System Context View: Synkra",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "101"
+      }, {
+        "id" : "58"
+      }, {
+        "id" : "59"
+      }, {
+        "id" : "60"
+      }, {
+        "id" : "61"
+      }, {
+        "id" : "62"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "64"
+      } ],
+      "softwareSystemId" : "6"
+    } ],
+    "systemLandscapeViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemLandscape",
+      "name" : "System Landscape View",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "101"
+      }, {
+        "id" : "51"
+      }, {
+        "id" : "52"
+      }, {
+        "id" : "53"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "56"
+      }, {
+        "id" : "57"
+      } ]
+    } ]
+  }
+}
