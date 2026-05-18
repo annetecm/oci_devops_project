@@ -15,12 +15,10 @@ export default function Sidebar({ isOpen, onClose, userRole }: SidebarProps) {
     { to: '/manager', label: 'Task List', icon: LayoutDashboard },
     { to: '/manager/kanban', label: 'Kanban Board', icon: LayoutDashboard },
     { to: '/manager/kpi', label: 'KPI Charts', icon: BarChart3 },
-    { to: '/manager/users', label: 'Users', icon: Users },
   ];
 
   const developerLinks = [
     { to: `/developer/${developerId}`, label: 'Dashboard', icon: LayoutDashboard },
-    { to: `/developer/${developerId}/task-list`, label: 'Task List', icon: LayoutDashboard },
     { to: `/developer/${developerId}/kanban`, label: 'Kanban Board', icon: LayoutDashboard },
     { to: `/developer/${developerId}/kpi`, label: 'KPI Charts', icon: BarChart3 },
   ];

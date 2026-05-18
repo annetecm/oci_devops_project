@@ -35,12 +35,27 @@ interface KPIDashboardChartsProps {
 
 const DEV_COLORS = [
   '#3b82f6',
-  '#ef4444',
+  '#ec4899',
   '#22c55e',
   '#f59e0b',
   '#8b5cf6',
   '#06b6d4',
 ];
+
+const BAR_COLORS = [
+  '#3b82f6',
+  '#14b8a6',
+  '#f59e0b',
+  '#8b5cf6',
+  '#06b6d4',
+  '#f472b6',
+  '#e879f9',
+  '#0ea5e9',
+  '#22c55e',
+  '#fb7185',
+];
+
+const getBarColor = (index: number) => BAR_COLORS[index % BAR_COLORS.length];
 
 export default function KPIDashboardCharts({ showTeamOverview = true, developerId, userRole = 'manager' }: KPIDashboardChartsProps) {
   const [backendTasks, setBackendTasks] = useState<BackendTask[]>([]);
@@ -365,7 +380,11 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
           <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
           <Legend wrapperStyle={{ fontSize: '14px' }} />
           {(selectedChartType === 'both' || selectedChartType === 'bar') && (
-            <Bar dataKey={barKey} fill="#3b82f6" name={barKey} />
+            <Bar dataKey={barKey} name={barKey}>
+              {data.map((entry, index) => (
+                <Cell key={`${barKey}-${entry.name}-${index}`} fill={getBarColor(index)} />
+              ))}
+            </Bar>
           )}
           {(selectedChartType === 'both' || selectedChartType === 'line') && (
             <Line dataKey={lineKey} stroke="#22c55e" strokeWidth={2} dot={false} name={lineKey} />
