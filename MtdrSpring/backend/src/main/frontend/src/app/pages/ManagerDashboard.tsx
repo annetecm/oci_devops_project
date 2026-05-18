@@ -146,7 +146,7 @@ export default function ManagerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-slate-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="manager" />
       <Header2
         title="Manager Dashboard"
@@ -154,7 +154,7 @@ export default function ManagerDashboard() {
         onMenuClick={() => setSidebarOpen(true)}
       />
 
-      <main className="p-6">
+      <main className="flex-1 overflow-auto p-6">
         <div className="flex items-center justify-end mb-4">
           <Select value={selectedSprint} onValueChange={setSelectedSprint}>
             <SelectTrigger size="sm" className="!w-[130px] text-sm">
@@ -225,7 +225,7 @@ export default function ManagerDashboard() {
 
           <div className="grid grid-cols-2 gap-3">
             {/* Completed Tasks per Developer */}
-            <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+            <div className="p-3 bg-pink-50 rounded-lg border border-pink-100">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-base font-semibold text-slate-900">Average Tasks / Sprint</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgTasks}</span>
@@ -240,7 +240,7 @@ export default function ManagerDashboard() {
               </div>
             </div>
             {/* Logged Hours per Developer */}
-            <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+            <div className="p-3 bg-pink-50 rounded-lg border border-pink-100">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-slate-700">Average Hours / Sprint</p>
                 <span className="text-xs text-slate-500">Team avg: {overallAvgHours}h</span>
