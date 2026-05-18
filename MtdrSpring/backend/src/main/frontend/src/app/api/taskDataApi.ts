@@ -37,6 +37,7 @@ export interface Task {
   updatedAt: string;
   estimatedHours: number;
   realHours: number | null;
+  sprint?: number;
 }
 
 export interface BackendTask {
@@ -135,6 +136,7 @@ function toFrontendTask(task: BackendTask, developersById: Map<string, Developer
     updatedAt: task.updatedAt ?? task.startDate,
     estimatedHours: task.estimatedTime,
     realHours: task.timeSpent ?? null,
+    sprint: task.sprint,
   };
 }
 
@@ -194,13 +196,17 @@ export interface CreateTaskRequest {
 }
 
 export async function createTask(data: CreateTaskRequest): Promise<BackendTask> {
+  console.debug('taskDataApi.createTask: sending body', data);
+
   const response = await fetch('/api/tasks', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('Could not create task');
+    const text = await response.text().catch(() => '');
+    console.error('taskDataApi.createTask: server responded non-ok', response.status, response.statusText, text);
+    throw new Error(`Could not create task: ${response.status} ${response.statusText} ${text}`);
   }
   return (await response.json()) as BackendTask;
 }
@@ -214,6 +220,7 @@ export interface UpdateTaskRequest {
   estimatedTime?: number;
   timeSpent?: number;
   developerID?: number;
+  sprint?: number;
 }
 
 export async function updateTask(taskId: string, data: UpdateTaskRequest): Promise<BackendTask> {
