@@ -415,7 +415,7 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
               </SelectContent>
             </Select>
           )}
-
+          
           {userRole === 'manager' && developers.length > 0 && (
             <Select value={selectedDeveloper} onValueChange={setSelectedDeveloper}>
               <SelectTrigger className="w-48 text-base"><SelectValue placeholder="Filter by developer" /></SelectTrigger>

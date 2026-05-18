@@ -14,6 +14,7 @@ import {
   Task,
 } from '../api/taskDataApi';
 
+
 export default function ManagerKanbanPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedSprint, setSelectedSprint] = useState<string>('all');
