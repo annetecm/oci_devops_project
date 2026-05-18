@@ -7,7 +7,6 @@ import {
   buildFrontendTask,
   buildFrontendTasks,
   fetchTasks,
-  fetchDeveloperDashboard,
   fetchDeveloperSummaries,
   createTask,
   updateTask,
@@ -59,14 +58,21 @@ function deriveSprints(tasks: Task[]): SprintItem[] {
 
 export default function TaskListView({
   tasks,
-  showUserFilter = true,
-  showActions = false,
+  showUserFilter,
+  showActions,
   userRole = 'manager',
   sprints = [],
   developers = [],
   currentDeveloperId,
   onDataUpdated,
 }: TaskListViewProps) {
+  // Derive permissions from userRole so callers don't have to pass explicit booleans.
+  // Managers: see all tasks + all filters, but cannot create or delete.
+  // Developers: actions visible, user filter hidden by default.
+  const isManager = userRole === 'manager';
+  const resolvedShowUserFilter = showUserFilter ?? true;       // both roles can filter by user
+  const resolvedShowActions    = showActions    ?? !isManager; // managers get no action buttons
+
   const navigate = useNavigate();
   const [tasksState, setTasksState] = useState<Task[]>(tasks ?? []);
   const [developersState, setDevelopersState] = useState<DeveloperSummary[]>(developers ?? []);
@@ -74,7 +80,7 @@ export default function TaskListView({
   const [selectedSprint, setSelectedSprint] = useState<string>('all');
   const [selectedUser, setSelectedUser] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [showCreateModal, setShowCreateModal] = useState(false); 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,14 +110,12 @@ export default function TaskListView({
       setIsLoading(true);
       setError(null);
       try {
-        // Use the same dashboard fetch as DeveloperDashboard for consistency
-        const [dashboardData, backendDevelopers] = await Promise.all([
-          fetchDeveloperDashboard(developerId),
+        const [backendTasks, backendDevelopers] = await Promise.all([
+          fetchTasks(),
           fetchDeveloperSummaries(),
         ]);
-        setBackendTasks(dashboardData.tasks);
         setDevelopersState(backendDevelopers);
-        const frontendTasks = buildFrontendTasks(dashboardData.tasks, backendDevelopers);
+        const frontendTasks = buildFrontendTasks(backendTasks, backendDevelopers);
         setTasksState(frontendTasks);
         setSprintsState(deriveSprints(frontendTasks));
       } catch (err) {
@@ -121,10 +125,12 @@ export default function TaskListView({
       }
     }
 
-    if (developerId) {
+    // Always load from backend — both managers and developers need fresh data.
+    // If a parent passes `tasks` explicitly it will be synced via the effect above.
+    if (!tasks || !developers) {
       loadData();
     }
-  }, [developerId, refreshKey]);
+  }, [tasks, developers, refreshKey]);
 
   const developerMap = useMemo(
     () => new Map(developersState.map((dev) => [dev.id, dev])),
@@ -156,7 +162,6 @@ export default function TaskListView({
     return styles[status as keyof typeof styles] || styles.todo;
   };
 
-
   const handleDeleteTask = async () => {
     const taskId = selectedTask?.id;
     if (!taskId) return;
@@ -173,7 +178,7 @@ export default function TaskListView({
   };
 
   const handleRowClick = (task: Task) => {
-    const path = userRole === 'manager' ? `/manager/task/${task.id}` : `/developer/task/${task.id}`;
+    const path = isManager ? `/manager/task/${task.id}` : `/developer/task/${task.id}`;
     navigate(path);
   };
 
@@ -203,14 +208,16 @@ export default function TaskListView({
     <div>
       {/* Filters and Create Button */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-6">
-        <div className="flex items-center gap-4 justify-between">
-          <div className="flex items-center gap-4 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2 text-slate-600">
               <Filter className="w-5 h-5" />
               <span className="text-sm">Filters</span>
             </div>
+
+            {/* Sprint filter — visible to everyone */}
             <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by sprint" />
               </SelectTrigger>
               <SelectContent>
@@ -221,9 +228,10 @@ export default function TaskListView({
               </SelectContent>
             </Select>
 
-            {showUserFilter && (
+            {/* User filter — visible to managers (and any role when resolvedShowUserFilter is true) */}
+            {resolvedShowUserFilter && (
               <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger className="w-44">
+                <SelectTrigger className="w-48">
                   <SelectValue placeholder="Filter by user" />
                 </SelectTrigger>
                 <SelectContent>
@@ -235,8 +243,9 @@ export default function TaskListView({
               </Select>
             )}
 
+            {/* Status filter — visible to everyone */}
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -248,9 +257,10 @@ export default function TaskListView({
             </Select>
           </div>
 
-          {showActions && (
+          {/* Create Task button — managers never see this */}
+          {resolvedShowActions && (
             <Button
-              onClick={() => setShowCreateModal(true)} // ✅ updated
+              onClick={() => setShowCreateModal(true)}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -271,7 +281,10 @@ export default function TaskListView({
                 <th className="px-6 py-4 text-center text-sm text-slate-700">Priority</th>
                 <th className="px-6 py-4 text-left text-sm text-slate-700">Due Date</th>
                 <th className="px-6 py-4 text-left text-sm text-slate-700">Status</th>
-                {showActions && <th className="px-6 py-4 text-right text-sm text-slate-700">Actions</th>}
+                {/* Actions column header — managers never see this */}
+                {resolvedShowActions && (
+                  <th className="px-6 py-4 text-right text-sm text-slate-700">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -300,7 +313,8 @@ export default function TaskListView({
                       {task.status.replace('-', ' ')}
                     </span>
                   </td>
-                  {showActions && (
+                  {/* Delete button — managers never see this */}
+                  {resolvedShowActions && (
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -321,15 +335,15 @@ export default function TaskListView({
         </div>
       </div>
 
-        {showCreateModal && (
-          <CreateTaskModal
-            onClose={() => setShowCreateModal(false)}
-            onCreated={() => setRefreshKey((k) => k + 1)}
-            developers={developersState}
-            defaultDeveloperId={developerId}
-            projectId={backendTasks[0]?.projectID}
-          />
-        )}
+      {resolvedShowActions && showCreateModal && (
+        <CreateTaskModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => setRefreshKey((k) => k + 1)}
+          developers={developers}
+          defaultDeveloperId={developerId}
+          projectId={backendTasks[0]?.projectID}
+        />
+      )}
 
       <DeleteTaskDialog
         isOpen={deleteDialogOpen}

@@ -6,21 +6,23 @@ import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { CreateTaskRequest, DeveloperSummary, createTask } from '../api/taskDataApi';
 
-interface CreateTaskModalProps {
+interface CreateTaskDialogProps {
+  isOpen: boolean;
   onClose: () => void;
   onCreated: () => void;
-  developers: DeveloperSummary[];
+  developers?: DeveloperSummary[];
   defaultDeveloperId?: string;
   projectId?: number;
 }
 
-export default function CreateTaskModal({
+export default function CreateTaskDialog({
+  isOpen,
   onClose,
   onCreated,
-  developers,
+  developers = [],
   defaultDeveloperId,
   projectId,
-}: CreateTaskModalProps) {
+}: CreateTaskDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
@@ -34,9 +36,36 @@ export default function CreateTaskModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
+    if (!developerID && developers.length > 0) {
+      setDeveloperID(defaultDeveloperId ?? developers[0]?.id ?? '');
+    }
+  }, [developers]);
+
+  // Lock body scroll while open, same as CreateTaskModal
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isOpen]);
+
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setPriority('MEDIUM');
+    setTaskType('new-feature');
+    setStatus('open');
+    setDeadline('');
+    setEstimatedTime('1');
+    setSprint('');
+    setDeveloperID(defaultDeveloperId ?? developers[0]?.id ?? '');
+    setError(null);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,13 +84,11 @@ export default function CreateTaskModal({
         status,
         deadline: `${deadline}T23:59:59`,
         estimatedTime: Math.max(1, Number(estimatedTime) || 1),
-        // Auto-assign to signed-in developer (defaultDeveloperId) when available
         developerID: Number(defaultDeveloperId ?? developerID ?? developers[0]?.id ?? 0),
         projectID: projectId ?? 1,
         ...(sprint ? { sprint: Number(sprint) } : {}),
       };
-      // Debug: log payload to help diagnose 400 errors
-      console.debug('CreateTaskModal: creating task payload', payload);
+      console.debug('CreateTaskDialog: creating task payload', payload);
 
       if (!payload.developerID || payload.developerID === 0) {
         throw new Error('No developer id available to assign task');
@@ -69,30 +96,33 @@ export default function CreateTaskModal({
 
       await createTask(payload);
       onCreated();
-      onClose();
+      handleClose();
     } catch (err: any) {
-      console.error('CreateTaskModal: createTask failed', err);
+      console.error('CreateTaskDialog: createTask failed', err);
       setError(err?.message || 'Failed to create task. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
+
       {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-lg border border-slate-200 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-blue-200 [&::-webkit-scrollbar-thumb:hover]:bg-blue-300">
+      <div className="relative bg-white rounded-xl shadow-lg border border-slate-200 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-blue-200 [&::-webkit-scrollbar-thumb:hover]:bg-blue-300">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-slate-900 text-lg font-semibold">Create New Task</h2>
+            <h2 className="text-slate-900 text-xl font-semibold">Create New Task</h2>
             <p className="text-sm text-slate-500 mt-0.5">Fill in the details for the new task</p>
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-4 h-4" />
@@ -101,130 +131,124 @@ export default function CreateTaskModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          {/* Title */}
           <div className="space-y-1.5">
-            <Label htmlFor="ct-name">
+            <Label htmlFor="cd-name" className="text-base">
               Title <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="ct-name"
-              placeholder="e.g. Fix login button"
+              id="cd-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="!border-blue-300"
+              placeholder="Enter task title"
+              className="h-12 text-base !border-blue-300"
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="ct-description">
-              Description <span className="text-blue-300">*</span>
+            <Label htmlFor="cd-description" className="text-base">
+              Description <span className="text-red-500">*</span>
             </Label>
             <textarea
-              id="ct-description"
-              rows={3}
-              placeholder="Describe the task..."
+              id="cd-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter task description"
+              rows={4}
               className="flex w-full rounded-md border border-blue-300 px-3 py-2 text-sm bg-transparent placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-300/50 focus-visible:border-blue-400 resize-none transition-[color,box-shadow]"
             />
           </div>
 
-          {/* Priority + Task Type */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>
-                Priority <span className="text-blue-5300">*</span>
-              </Label>
-              <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger className="!border-blue-300">
+              <Label className="text-base">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="h-12 text-base !border-blue-300">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="HIGH">High</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="LOW">Low</SelectItem>
+                  <SelectItem value="open" className="text-base">To Do</SelectItem>
+                  <SelectItem value="in_progress" className="text-base">In Progress</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-1.5">
-              <Label>
-                Task Type <span className="text-blue-300">*</span>
-              </Label>
+              <Label className="text-base">Type/Category</Label>
               <Select value={taskType} onValueChange={setTaskType}>
-                <SelectTrigger className="!border-blue-300">
+                <SelectTrigger className="h-12 text-base !border-blue-300">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new-feature">New Feature</SelectItem>
-                  <SelectItem value="bug-fixed">Bug Fix</SelectItem>
-                  <SelectItem value="improved-feature">Improvement</SelectItem>
-                  <SelectItem value="documentation">Documentation</SelectItem>
-                  <SelectItem value="review">Review</SelectItem>
+                  <SelectItem value="new-feature" className="text-base">New Feature</SelectItem>
+                  <SelectItem value="bug-fixed" className="text-base">Bug Fix</SelectItem>
+                  <SelectItem value="improved-feature" className="text-base">Improvement</SelectItem>
+                  <SelectItem value="documentation" className="text-base">Documentation</SelectItem>
+                  <SelectItem value="review" className="text-base">Review</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Status */}
-          <div className="space-y-1.5">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="!border-blue-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">To Do</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Deadline + Estimated Hours */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="ct-deadline">
+              <Label htmlFor="cd-deadline" className="text-base">
                 Deadline <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="ct-deadline"
+                id="cd-deadline"
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="!border-blue-300"
+                className="h-12 text-base !border-blue-300"
               />
             </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="ct-estimated">
-                Estimated Hours <span className="text-red-500">*</span>
+              <Label htmlFor="cd-estimated" className="text-base">
+                Estimated Time (hours) <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="ct-estimated"
+                id="cd-estimated"
                 type="number"
-                min="1"
-                placeholder="e.g. 8"
                 value={estimatedTime}
                 onChange={(e) => setEstimatedTime(e.target.value)}
-                className="!border-blue-300"
+                placeholder="e.g., 8"
+                className="h-12 text-base !border-blue-300"
+                min="1"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-base">Priority</Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger className="h-12 text-base !border-blue-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HIGH" className="text-base">High</SelectItem>
+                  <SelectItem value="MEDIUM" className="text-base">Medium</SelectItem>
+                  <SelectItem value="LOW" className="text-base">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="cd-sprint" className="text-base">Sprint</Label>
+              <Input
+                id="cd-sprint"
+                type="number"
+                min="0"
+                placeholder="e.g. 1"
+                value={sprint}
+                onChange={(e) => setSprint(e.target.value)}
+                className="h-12 text-base !border-blue-300"
               />
             </div>
           </div>
 
           {/* Assigned Developer: auto-assigned to signed-in developer (hidden) */}
-
-          {/* Sprint */}
-          <div className="space-y-1.5">
-            <Label htmlFor="ct-sprint">Sprint</Label>
-            <Input
-              id="ct-sprint"
-              type="number"
-              min="0"
-              placeholder="e.g. 1"
-              value={sprint}
-              onChange={(e) => setSprint(e.target.value)}
-              className="!border-blue-300"
-            />
-          </div>
 
           {error && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
@@ -232,12 +256,21 @@ export default function CreateTaskModal({
             </p>
           )}
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="h-12 px-6 text-base border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-6 text-base"
+            >
               {isSubmitting ? 'Creating...' : 'Create Task'}
             </Button>
           </div>
