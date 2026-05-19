@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: todolistapp-springboot
-          image: mx-queretaro-1.ocir.io/axij8uqyfn7v/reacttodo/p0r1y
+          image: mx-queretaro-1.ocir.io/axij8uqyfn7v/reacttodo/p0r1y/todolistapp-springboot:0.1
           imagePullPolicy: Always
           env:
             # ── Database ──────────────────────────────────────────────
