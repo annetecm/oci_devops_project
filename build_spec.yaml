@@ -45,7 +45,6 @@ steps:
     command: |
       mkdir -p $HOME/.kube
       cd $HOME
-      ls -la
       mkdir -p k8s
       cd k8s
       rm -f kubectl
