@@ -7,7 +7,6 @@ metadata:
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
-
   ports:
     - port: 80
       protocol: TCP
@@ -48,22 +47,30 @@ spec:
           image: %DOCKER_REGISTRY%/todolistapp-springboot:0.1
           imagePullPolicy: Always
           env:
+            # ── Database ──────────────────────────────────────────────
             - name: db_user
-              value: db_user
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-user
             - name: db_url
-              value: db_url
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-url
+            - name: db_password
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-password
             - name: todo.table.name
               value: "todoitem"
             - name: driver_class_name
               value: "oracle.jdbc.OracleDriver"
             - name: OCI_REGION
               value: "%OCI_REGION%"
-            - name: dbpassword
-              valueFrom:
-                secretKeyRef:
-                  name: dbuser
-                  key: dbpassword
-                  optional: true
+
+            # ── Frontend auth ─────────────────────────────────────────
             - name: ui_username
               value: "%UI_USERNAME%"
             - name: ui_password
@@ -72,6 +79,90 @@ spec:
                   name: frontendadmin
                   key: password
                   optional: true
+
+            # ── Gemini API ────────────────────────────────────────────
+            - name: gemini.api.key
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: gemini-api-key
+            - name: gemini.api.model
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: gemini-api-model
+            - name: gemini.api.url
+              value: "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=$(gemini.api.key)"
+            - name: gemini.max-output-tokens
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: gemini-max-output-tokens
+            - name: gemini.temperature
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: gemini-temperature
+
+            # ── Deepseek API ──────────────────────────────────────────
+            - name: deepseek.api.key
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: deepseek-api-key
+            - name: deepseek.api.url
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: deepseek-api-url
+
+            # ── Telegram Bot ──────────────────────────────────────────
+            - name: telegram.bot.token
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: telegram-bot-token
+            - name: telegram.bot.name
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: telegram-bot-name
+
+            # ── Email / SMTP ──────────────────────────────────────────
+            - name: spring.mail.host
+              value: "smtp.gmail.com"
+            - name: spring.mail.port
+              value: "587"
+            - name: spring.mail.username
+              value: "synkrateam21@gmail.com"
+            - name: spring.mail.password
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: mail-password
+            - name: spring.mail.properties.mail.smtp.auth
+              value: "true"
+            - name: spring.mail.properties.mail.smtp.starttls.enable
+              value: "true"
+
+            # ── Telegram Bot task defaults ────────────────────────────
+            - name: bot.task.defaultProjectId
+              value: "1"
+            - name: bot.task.defaultDeveloperId
+              value: "1"
+            - name: bot.task.defaultTaskType
+              value: "new-feature"
+            - name: bot.task.defaultPriority
+              value: "MEDIUM"
+            - name: bot.task.defaultEstimatedTime
+              value: "1"
+            - name: bot.task.defaultDeadlineDays
+              value: "7"
+
+            # ── Oracle Vector ─────────────────────────────────────────
+            - name: oracle.vector.embedding-model
+              value: "ALL_MINILM_L12_V2"
+
           volumeMounts:
             - name: creds
               mountPath: /mtdrworkshop/creds
