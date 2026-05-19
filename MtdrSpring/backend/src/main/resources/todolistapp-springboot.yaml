@@ -92,7 +92,10 @@ spec:
                   name: app-secrets
                   key: gemini-api-model
             - name: gemini.api.url
-              value: "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=$(gemini.api.key)"
+              valueFrom:
+                secretKeyRef:
+                 name: app-secrets
+                 key: gemini-api-url
             - name: gemini.max-output-tokens
               valueFrom:
                 secretKeyRef:
