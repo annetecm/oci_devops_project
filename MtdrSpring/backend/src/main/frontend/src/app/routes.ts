@@ -8,6 +8,7 @@ import DeveloperKanbanPage from "./pages/DeveloperKanbanPage";
 import DeveloperDashboard2 from "./pages/DeveloperDashboard2";
 import TaskDetailView from "./pages/TaskDetailView";
 import ManagerKPI from "./pages/ManagerKPI";
+import ManagerTaskList from "./pages/ManagerTaskList";
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/manager",
-    Component: ManagerDashboard,
+    Component: ManagerTaskList,
   },
   {
     path: "/manager/kanban",

@@ -208,8 +208,8 @@ export default function TaskListView({
     <div>
       {/* Filters and Create Button */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-6">
-        <div className="flex flex-wrap items-center gap-4 justify-between">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
             <div className="flex items-center gap-2 text-slate-600">
               <Filter className="w-5 h-5" />
               <span className="text-sm">Filters</span>
