@@ -1,4 +1,4 @@
-version: 0.1 
+version: 0.1
 component: build
 timeoutInSeconds: 600
 shell: bash
@@ -13,26 +13,59 @@ env:
 steps:
   - type: Command
     name: "Install GraalVM Enterprise 22.x Native Image for Java22"
-    command:  yum -y install graalvm-22-jdk.x86_64;
-              ls /usr/lib64/graalvm/
+    command: |
+      yum -y install graalvm-22-jdk.x86_64
+      ls /usr/lib64/graalvm/
 
   - type: Command
     name: "Set PATH Variable"
-    command: export PATH=$JAVA_HOME/bin:$PATH
+    command: |
+      export PATH=$JAVA_HOME/bin:$PATH
+      java -version
 
   - type: Command
     name: "Docker Login"
-    command:  cd MtdrSpring;
-              oci os object get --bucket-name reacttodo-ysmiy --name deployment_config.tgz --file deployment_config.tgz;
-              tar -xzvf deployment_config.tgz;
-              source env.sh;
-              cat at.cfg | docker login -u "axyyzvpljivg/adan0001@gmail.com" --password-stdin phx.ocir.io
+    command: |
+      cd MtdrSpring
+      oci os object get --bucket-name reacttodo-p0r1y --name deployment_config.tgz --file deployment_config.tgz
+      tar -xzvf deployment_config.tgz
+      source env.sh
+      cat at.cfg | docker login -u "axij8uqyfn7v/a01645033@tec.mx" --password-stdin mx-queretaro-1.ocir.io
 
   - type: Command
     name: "Build"
-    command:  cd MtdrSpring;
-              source env.sh;
-              (cd backend;source build.sh)
+    command: |
+      cd MtdrSpring
+      source env.sh
+      cd backend
+      source build.sh
 
+  - type: Command
+    name: "Install K8s"
+    command: |
+      mkdir -p $HOME/.kube
+      cd $HOME
+      mkdir -p k8s
+      cd k8s
+      rm -f kubectl
+      wget -O kubectl https://dl.k8s.io/v1.31.2/bin/linux/amd64/kubectl
+      chmod +x kubectl
+      export PATH=$PATH:$HOME/k8s
+      kubectl version --client
+      oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.mx-queretaro-1.aaaaaaaagavlop6m7ldvh66kmmf4ckbg6roqpugtf7ct5epdgcm6a6ifht2a --file $HOME/.kube/config --region mx-queretaro-1 --token-version 2.0.0 --kube-endpoint PUBLIC_ENDPOINT
+      export KUBECONFIG=$HOME/.kube/config
+      kubectl config view
 
-
+  - type: Command
+    name: "Undeploy"
+    ignoreFailure: true
+    command: |
+      export PATH=$PATH:$HOME/k8s
+      export KUBECONFIG=$HOME/.kube/config
+      kubectl version --client
+      cd MtdrSpring
+      source env.sh
+      cd backend
+      ls -l
+      kubectl config view
+      source undeploy.sh
