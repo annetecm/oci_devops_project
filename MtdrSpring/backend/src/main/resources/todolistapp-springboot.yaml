@@ -211,3 +211,22 @@ spec:
             matchLabels:
               app: todolistapp-springboot
 ---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: todolistapp-monitor
+  namespace: observability
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - mtdrworkshop
+  selector:
+    matchLabels:
+      app: todolistapp-springboot
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
