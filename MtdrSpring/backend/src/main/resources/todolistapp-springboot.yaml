@@ -2,28 +2,34 @@ apiVersion: v1
 kind: Service
 metadata:
   name: todolistapp-springboot-service
+  labels:
+    app: todolistapp-springboot
   annotations:
     oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
   ports:
-    - port: 80
+    - name: http
+      port: 80
       protocol: TCP
       targetPort: 8080
   selector:
     app: todolistapp-springboot
 ---
-#this is new stuff for hosting on the load balancer
+# this is new stuff for hosting on the load balancer
 apiVersion: v1
 kind: Service
 metadata:
   name: todolistapp-backend-router
+  labels:
+    app: todolistapp-springboot
 spec:
   selector:
     app: todolistapp-springboot
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: http
 ---
@@ -94,8 +100,8 @@ spec:
             - name: gemini.api.url
               valueFrom:
                 secretKeyRef:
-                 name: app-secrets
-                 key: gemini-api-url
+                  name: app-secrets
+                  key: gemini-api-url
             - name: gemini.max-output-tokens
               valueFrom:
                 secretKeyRef:
@@ -166,11 +172,32 @@ spec:
             - name: oracle.vector.embedding-model
               value: "ALL_MINILM_L12_V2"
 
+            # ── Observability / Prometheus ────────────────────────────
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info,metrics,prometheus"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
+            - name: MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED
+              value: "true"
+            - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+              value: "todolistapp-springboot"
+
           volumeMounts:
             - name: creds
               mountPath: /mtdrworkshop/creds
+
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+
       restartPolicy: Always
       volumes:
         - name: creds
