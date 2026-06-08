@@ -2,6 +2,7 @@ version: 0.1
 component: build
 timeoutInSeconds: 600
 shell: bash
+failImmediatelyOnError: true
 
 env:
   variables:
@@ -26,6 +27,7 @@ steps:
   - type: Command
     name: "Docker Login"
     command: |
+      export PATH=$JAVA_HOME/bin:$PATH
       cd MtdrSpring
       oci os object get --bucket-name reacttodo-p0r1y --name deployment_config.tgz --file deployment_config.tgz
       tar -xzvf deployment_config.tgz
@@ -33,8 +35,18 @@ steps:
       cat at.cfg | docker login -u "axij8uqyfn7v/a01645033@tec.mx" --password-stdin mx-queretaro-1.ocir.io
 
   - type: Command
+    name: "Run Automated Backend Tests"
+    command: |
+      export PATH=$JAVA_HOME/bin:$PATH
+      cd MtdrSpring
+      source env.sh
+      cd backend
+      mvn -B test -Dapp.nodb=true
+
+  - type: Command
     name: "Build"
     command: |
+      export PATH=$JAVA_HOME/bin:$PATH
       cd MtdrSpring
       source env.sh
       cd backend
