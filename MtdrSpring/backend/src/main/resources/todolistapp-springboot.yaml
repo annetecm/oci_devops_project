@@ -94,8 +94,8 @@ spec:
             - name: gemini.api.url
               valueFrom:
                 secretKeyRef:
-                 name: app-secrets
-                 key: gemini-api-url
+                  name: app-secrets
+                  key: gemini-api-url
             - name: gemini.max-output-tokens
               valueFrom:
                 secretKeyRef:
@@ -169,8 +169,38 @@ spec:
           volumeMounts:
             - name: creds
               mountPath: /mtdrworkshop/creds
+
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
       restartPolicy: Always
       volumes:
         - name: creds
