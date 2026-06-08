@@ -77,7 +77,7 @@ export default function DeveloperKanbanPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="My Tasks - Kanban Board"
@@ -93,7 +93,7 @@ export default function DeveloperKanbanPage() {
 
   if (error || !selectedDeveloper) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="My Tasks - Kanban Board"
@@ -108,7 +108,7 @@ export default function DeveloperKanbanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 lg:pl-60">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
       <Header2
         title="My Tasks - Kanban Board"

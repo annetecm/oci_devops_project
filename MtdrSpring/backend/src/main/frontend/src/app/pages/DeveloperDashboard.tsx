@@ -92,7 +92,7 @@ export default function DeveloperDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="Developer Dashboard"
@@ -106,7 +106,7 @@ export default function DeveloperDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="Developer Dashboard"
@@ -120,7 +120,7 @@ export default function DeveloperDashboard() {
 
   if (!selectedDeveloper) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="Developer Dashboard"
@@ -133,7 +133,7 @@ export default function DeveloperDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 lg:pl-60">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
       <Header2
         title="Developer Dashboard"

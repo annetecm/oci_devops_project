@@ -2,6 +2,17 @@ import { LogOut, Menu } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './ui/alert-dialog';
 import { useEffect, useState } from 'react';
 import { fetchDeveloperSummaries, DeveloperSummary } from '../api/taskDataApi';
 import { useAuth } from '../context/AuthContext';
@@ -110,22 +121,23 @@ export default function Header({ title, subtitle, userName, userInitials, onMenu
 
   if (!currentUser) {
     return (
-      <header className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="px-8 py-4">
-          <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-30 relative bg-white border-b border-slate-200 shadow-sm">
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-700 via-red-500 to-orange-400" />
+        <div className="h-[76px] px-8 flex items-center">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               {onMenuClick && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-slate-100 text-slate-600"
+                  className="hover:bg-slate-100 text-slate-600 rounded-lg lg:hidden"
                 >
                   <Menu className="w-6 h-6" />
                 </Button>
               )}
               <div>
-                <h1 className="text-slate-900 text-2xl font-bold">{title}</h1>
-                {subtitle && <p className="text-sm text-slate-600 mt-1">{subtitle}</p>}
+                <h1 className="text-slate-900 text-base font-bold tracking-tight">{title}</h1>
+                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
               </div>
             </div>
           </div>
@@ -135,48 +147,84 @@ export default function Header({ title, subtitle, userName, userInitials, onMenu
   }
 
   return (
-    <header className="bg-white border-b border-slate-200 shadow-sm">
-      <div className="px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 relative bg-white border-b border-slate-200 shadow-sm">
+      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-700 via-red-500 to-orange-400" />
+      <div className="h-[76px] px-8 flex items-center">
+        <div className="flex items-center justify-between gap-4 w-full">
+          <div className="flex items-center gap-4 min-w-0">
             {onMenuClick && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover:bg-slate-100 text-slate-600"
+                className="hover:bg-slate-100 text-slate-600 rounded-lg shrink-0 lg:hidden"
                 onClick={onMenuClick}
               >
                 <Menu className="w-6 h-6" />
               </Button>
             )}
-            <div>
-              <h1 className="text-slate-900 text-2xl font-bold">{title}</h1>
-              {subtitle && <p className="text-base text-slate-600 mt-1 font-medium">{subtitle}</p>}
+            <div className="min-w-0">
+              <h1 className="text-slate-900 text-base font-bold tracking-tight truncate">{title}</h1>
+              {subtitle && (
+                <p className="text-xs text-slate-500 mt-0.5 font-medium truncate">{subtitle}</p>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-            <div className="text-right">
-              <p className="text-base text-slate-900 font-semibold">{currentUser.name}</p>
-              <p className="text-sm text-slate-500 font-medium">{currentUser.role}</p>
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+              <Avatar className="w-9 h-9 ring-2 ring-white shadow-sm">
+                <AvatarFallback className="bg-gradient-to-br from-red-700 to-red-900 text-white font-semibold text-sm">
+                  {currentUser.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-left pr-1">
+                <p className="text-sm text-slate-900 font-semibold leading-none">{currentUser.name}</p>
+                <p className="text-[11px] text-red-700 font-semibold uppercase tracking-wider mt-1">
+                  {currentUser.role}
+                </p>
+              </div>
             </div>
-            <Avatar className="w-10 h-10 bg-primary text-white">
-              <AvatarFallback className="bg-primary text-white font-semibold text-base">
-                {currentUser.initials}
-              </AvatarFallback>
-            </Avatar>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-slate-100 text-slate-600"
-              onClick={() => {
-                signOut();
-                navigate('/');
-              }}
-            >
-              <LogOut className="w-5 h-5" />
-            </Button>
+            <div className="sm:hidden">
+              <Avatar className="w-10 h-10">
+                <AvatarFallback className="bg-gradient-to-br from-red-700 to-red-900 text-white font-semibold">
+                  {currentUser.initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:!bg-slate-100 hover:!text-slate-900 text-slate-500 rounded-lg transition-colors"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sign out of Synkra?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Your session will end. You will need to authenticate again to access your workspace.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="hover:!bg-slate-100 hover:!text-slate-900">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-800 hover:bg-red-900 text-white"
+                    onClick={() => {
+                      signOut();
+                      navigate('/');
+                    }}
+                  >
+                    Sign out
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

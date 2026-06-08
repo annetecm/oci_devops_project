@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
+import { ListTodo, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
 import Header2 from '../components/Header2';
 import Sidebar from '../components/Sidebar';
 import KPIDashboardCharts from '../components/KPIDashboardCharts';
@@ -58,7 +59,7 @@ export default function DeveloperDashboard2() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="KPI Dashboard"
@@ -74,7 +75,7 @@ export default function DeveloperDashboard2() {
 
   if (error || !selectedDeveloper) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="KPI Dashboard"
@@ -89,7 +90,7 @@ export default function DeveloperDashboard2() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 lg:pl-60">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
       <Header2
         title="KPI Dashboard"
@@ -98,24 +99,48 @@ export default function DeveloperDashboard2() {
       />
 
       <main className="p-8">
-        <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200 mb-8">
-          <h3 className="text-slate-900 mb-4">My Progress</h3>
-          <div className="grid grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-slate-50 rounded-lg">
-              <p className="text-2xl text-slate-900 mb-1">{stats.total}</p>
-              <p className="text-sm text-slate-600">Total Assigned</p>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200/80 hover:shadow-md transition-shadow mb-8">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-slate-700" />
             </div>
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-2xl text-slate-900 mb-1">{completionRate}%</p>
-              <p className="text-sm text-slate-600">Completion Rate</p>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">My Progress</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Snapshot of your current workload</p>
             </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <p className="text-2xl text-slate-900 mb-1">{stats.inProgress}</p>
-              <p className="text-sm text-slate-600">Currently Working On</p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="relative rounded-lg border border-slate-200/80 bg-slate-50/60 p-4 overflow-hidden">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-slate-400" />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Assigned</p>
+                <ListTodo className="w-4 h-4 text-slate-500" />
+              </div>
+              <p className="text-3xl text-slate-900 tabular-nums">{stats.total}</p>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-2xl text-slate-900 mb-1">{stats.done}</p>
-              <p className="text-sm text-slate-600">Tasks Completed</p>
+            <div className="relative rounded-lg border border-red-100 bg-gradient-to-br from-red-50/70 via-white to-white p-4 overflow-hidden">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-red-700" />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Completion Rate</p>
+                <TrendingUp className="w-4 h-4 text-red-700" />
+              </div>
+              <p className="text-3xl text-slate-900 tabular-nums">{completionRate}%</p>
+            </div>
+            <div className="relative rounded-lg border border-amber-100 bg-gradient-to-br from-amber-50/70 via-white to-white p-4 overflow-hidden">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500" />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">In Progress</p>
+                <Clock className="w-4 h-4 text-amber-600" />
+              </div>
+              <p className="text-3xl text-slate-900 tabular-nums">{stats.inProgress}</p>
+            </div>
+            <div className="relative rounded-lg border border-emerald-100 bg-gradient-to-br from-emerald-50/70 via-white to-white p-4 overflow-hidden">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Completed</p>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              </div>
+              <p className="text-3xl text-slate-900 tabular-nums">{stats.done}</p>
             </div>
           </div>
         </div>

@@ -331,8 +331,12 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
     const groupedData = buildGroupedData(data, metricKey, trendKey);
 
     return (
-      <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-        <h3 className="text-xl font-bold text-slate-900 mb-4">{title}</h3>
+      <div className="relative bg-white rounded-xl p-6 pt-7 shadow-sm border border-slate-200/80 hover:shadow-md transition-shadow overflow-hidden">
+        <span className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-800 via-red-600 to-amber-500" />
+        <div className="mb-5">
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">{title}</h3>
+          <p className="text-xs text-slate-500 mt-0.5">By sprint · per developer</p>
+        </div>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={groupedData} barCategoryGap="20%" barGap={2}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -370,8 +374,12 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
 
   // Standard chart: identical to original
   const Chart = ({ title, data, barKey, lineKey }: { title: string; data: ChartDataItem[]; barKey: string; lineKey: string }) => (
-    <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-      <h3 className="text-xl font-bold text-slate-900 mb-4">{title}</h3>
+    <div className="relative bg-white rounded-xl p-6 pt-7 shadow-sm border border-slate-200/80 hover:shadow-md transition-shadow overflow-hidden">
+      <span className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-800 via-red-600 to-amber-500" />
+      <div className="mb-5">
+        <h3 className="text-base font-bold text-slate-900 tracking-tight">{title}</h3>
+        <p className="text-xs text-slate-500 mt-0.5">{barKey} vs {lineKey}</p>
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -394,46 +402,51 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
     </div>
   );
 
-  if (isLoading) return <div className="text-center text-slate-600">Loading KPI data...</div>;
-  if (error) return <div className="text-center text-red-600">{error}</div>;
+  if (isLoading) return <div className="text-center text-slate-600 py-10">Loading KPI data...</div>;
+  if (error) return <div className="text-center text-red-600 py-10">{error}</div>;
 
   return (
     <div>
-      {/* Filters — completely unchanged */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-6">
-        <div className="flex items-center gap-4 overflow-x-auto">
-          <Filter className="w-5 h-5 text-slate-600" />
+      {/* Filters */}
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 mb-6">
+        <div className="flex items-center gap-3 overflow-x-auto">
+          <div className="flex items-center gap-2 pr-3 mr-1 border-r border-slate-200 text-slate-700 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+              <Filter className="w-4 h-4 text-slate-600" />
+            </div>
+            <span className="text-sm font-semibold text-slate-700">Filters</span>
+          </div>
 
           {sprints.length > 0 && (
             <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-              <SelectTrigger className="w-48 text-base"><SelectValue placeholder="Filter by sprint" /></SelectTrigger>
+              <SelectTrigger className="w-48 bg-slate-50 border-slate-200 hover:bg-white transition-colors"><SelectValue placeholder="Filter by sprint" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-base">All Sprints</SelectItem>
+                <SelectItem value="all">All Sprints</SelectItem>
                 {sprints.map(sprint => (
-                  <SelectItem key={sprint.id} value={String(sprint.id)} className="text-base">{sprint.name}</SelectItem>
+                  <SelectItem key={sprint.id} value={String(sprint.id)}>{sprint.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
-          
+
           {userRole === 'manager' && developers.length > 0 && (
             <Select value={selectedDeveloper} onValueChange={setSelectedDeveloper}>
-              <SelectTrigger className="w-48 text-base"><SelectValue placeholder="Filter by developer" /></SelectTrigger>
+              <SelectTrigger className="w-48 bg-slate-50 border-slate-200 hover:bg-white transition-colors"><SelectValue placeholder="Filter by developer" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-base">All Developers</SelectItem>
+                <SelectItem value="all">All Developers</SelectItem>
                 {developers.map(dev => (
-                  <SelectItem key={dev.id} value={dev.id} className="text-base">{dev.name}</SelectItem>
+                  <SelectItem key={dev.id} value={dev.id}>{dev.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
 
           <Select value={selectedChartType} onValueChange={(value: any) => setSelectedChartType(value)}>
-            <SelectTrigger className="w-48 text-base"><SelectValue placeholder="Chart type" /></SelectTrigger>
+            <SelectTrigger className="w-48 bg-slate-50 border-slate-200 hover:bg-white transition-colors"><SelectValue placeholder="Chart type" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="both" className="text-base">Bars & Line</SelectItem>
-              <SelectItem value="bar" className="text-base">Bars Only</SelectItem>
-              <SelectItem value="line" className="text-base">Line Only</SelectItem>
+              <SelectItem value="both">Bars & Line</SelectItem>
+              <SelectItem value="bar">Bars Only</SelectItem>
+              <SelectItem value="line">Line Only</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -475,36 +488,56 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
         </div>
       )}
 
-      {/* Team Overview — completely unchanged */}
+      {/* Team Overview */}
       {showTeamOverview && (
-        <div className="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-          <h3 className="text-xl font-bold text-slate-900 mb-4">Team Overview</h3>
-          <div className="grid grid-cols-4 gap-4">
-            {developers.map(dev => {
+        <div className="relative bg-white rounded-xl p-6 pt-7 shadow-sm border border-slate-200/80 overflow-hidden">
+          <span className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-800 via-red-600 to-amber-500" />
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">Team Overview</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Per-developer roll-up across all sprints</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {developers.map((dev, index) => {
               const devTasks = backendTasks.filter(t => String(t.developerID) === dev.id);
               const completed = devTasks.filter(t => t.status === 'closed').length;
               const hours = devTasks.reduce((sum, t) => sum + (t.timeSpent ?? 0), 0);
               const estimatedHours = devTasks.reduce((sum, t) => sum + (t.estimatedTime ?? 0), 0);
               const cost = hours * 24;
+              const devColor = devColorMapRef.current[dev.id] ?? DEV_COLORS[index % DEV_COLORS.length];
+              const completionPct = devTasks.length ? Math.round((completed / devTasks.length) * 100) : 0;
               return (
-                <div key={dev.id} className="bg-slate-50 rounded-lg p-4">
-                  <p className="font-semibold text-base text-slate-900 mb-3">{dev.name}</p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-base text-slate-600">Tasks:</span>
-                      <span className="text-base font-medium text-slate-900">{completed}/{devTasks.length}</span>
+                <div key={dev.id} className="relative bg-gradient-to-br from-slate-50/80 via-white to-white rounded-xl border border-slate-200/80 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden">
+                  <span className="absolute top-0 bottom-0 left-0 w-1" style={{ backgroundColor: devColor }} />
+                  <div className="flex items-center gap-3 mb-3 pl-1">
+                    <div
+                      className="w-9 h-9 rounded-full text-white text-xs font-semibold flex items-center justify-center shadow-sm shrink-0"
+                      style={{ backgroundColor: devColor }}
+                    >
+                      {(dev.initials || dev.name.split(' ').map(w => w[0]).join('')).slice(0, 2).toUpperCase()}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-base text-slate-600">Hours:</span>
-                      <span className="text-base font-medium text-slate-900">{hours}h</span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-slate-900 truncate">{dev.name}</p>
+                      <p className="text-[11px] text-slate-500">{completionPct}% complete</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-base text-slate-600">Est Hours:</span>
-                      <span className="text-base font-medium text-slate-900">{estimatedHours}h</span>
+                  </div>
+                  <div className="space-y-1.5 pl-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Tasks</span>
+                      <span className="font-semibold text-slate-900 tabular-nums">{completed}/{devTasks.length}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-base text-slate-600">Cost:</span>
-                      <span className="text-base font-medium text-slate-900">${cost}</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Hours</span>
+                      <span className="font-semibold text-slate-900 tabular-nums">{hours}h</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Est. Hours</span>
+                      <span className="font-semibold text-slate-900 tabular-nums">{estimatedHours}h</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-1.5 mt-1.5 border-t border-slate-100">
+                      <span className="text-slate-500">Cost</span>
+                      <span className="font-bold text-slate-900 tabular-nums">${cost}</span>
                     </div>
                   </div>
                 </div>
