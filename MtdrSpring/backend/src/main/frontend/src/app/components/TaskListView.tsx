@@ -143,7 +143,7 @@ export default function TaskListView({ tasks, showUserFilter = true, showActions
           {showActions && (
             <Button
               onClick={() => setCreateDialogOpen(true)}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-800 hover:bg-red-900 text-white shadow-sm hover:shadow-md transition-all"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Task

@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
+import { ListTodo, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import Header2 from '../components/Header2';
 import Sidebar from '../components/Sidebar';
+import StatsCard from '../components/StatsCard';
 import TaskListView from '../components/TaskListViewDeveloper';
 import {
   fetchDeveloperDashboard,
   fetchDeveloperSummaries,
   buildFrontendTasks,
   getTasksByDeveloper,
+  getStats,
   DeveloperSummary,
   BackendTask,
-  Task,
 } from '../api/taskDataApi';
 
 export default function DeveloperTaskList() {
@@ -74,11 +76,13 @@ export default function DeveloperTaskList() {
     () => (developerId ? getTasksByDeveloper(frontendTasks, developerId) : []),
     [frontendTasks, developerId]
   );
+  const stats = useMemo(() => getStats(myTasks), [myTasks]);
+  const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
   const selectedDeveloper = developers.find(dev => dev.id === developerId);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="My Tasks"
@@ -94,7 +98,7 @@ export default function DeveloperTaskList() {
 
   if (error || !selectedDeveloper) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 lg:pl-60">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
         <Header2
           title="My Tasks"
@@ -109,7 +113,7 @@ export default function DeveloperTaskList() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 lg:pl-60">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} userRole="developer" />
       <Header2
         title="My Tasks"
@@ -117,7 +121,15 @@ export default function DeveloperTaskList() {
         onMenuClick={() => setSidebarOpen(true)}
       />
 
-      <main className="p-8">
+      <main className="p-8 space-y-6">
+        {/* Quick stats */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatsCard title="Pending" value={stats.todo} icon={ListTodo} iconColor="text-slate-600" iconBgColor="bg-slate-100" />
+          <StatsCard title="In Progress" value={stats.inProgress} icon={Clock} iconColor="text-amber-600" iconBgColor="bg-amber-100" />
+          <StatsCard title="Completed" value={stats.done} icon={CheckCircle2} iconColor="text-emerald-600" iconBgColor="bg-emerald-100" />
+          <StatsCard title="High Priority" value={stats.highPriority} icon={AlertTriangle} iconColor="text-rose-600" iconBgColor="bg-rose-100" />
+        </section>
+
         <TaskListView
           tasks={myTasks}
           showUserFilter={false}
