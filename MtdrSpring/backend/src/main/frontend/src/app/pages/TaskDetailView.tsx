@@ -26,7 +26,6 @@ import {
   deleteTask,
 } from '../api/taskDataApi';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 
 const priorityConfig = {
   high: { color: 'text-red-700', bgColor: 'bg-red-100 border-red-200', label: 'High Priority' },
@@ -49,9 +48,12 @@ function toBackendStatus(status: Status): string {
 export default function TaskDetailView() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const location = useLocation();
-  const isReadOnly = (location.state as { role?: string } | null)?.role === 'manager';
+  const locState = (location.state as { role?: string; fromCalendar?: boolean; fromManagerCalendar?: boolean; developerId?: string } | null) || {};
+  const isReadOnly = locState.role === 'manager';
+  const fromCalendar = !!locState.fromCalendar;
+  const fromManagerCalendar = !!locState.fromManagerCalendar;
+  const developerIdFromState = locState.developerId;
   const [task, setTask] = useState<Task | null>(null);
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,12 +63,7 @@ export default function TaskDetailView() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auth guard: must be logged in
-  useEffect(() => {
-    if (!user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+  // No auth redirect here — page should be accessible directly by URL
 
   // Edit state
   const [editTitle, setEditTitle] = useState('');
@@ -192,17 +189,17 @@ export default function TaskDetailView() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="px-8 py-4">
-          <Button 
+            <Button 
             variant="ghost" 
             className="mb-4 -ml-2 text-slate-600 hover:!bg-slate-100 hover:!text-slate-900" 
             onClick={() => {
-              if (fromManagerCalendar) {
-                navigate(`/manager/calendar`);
-              } else if (fromCalendar && developerId) {
-                navigate(`/developer/${developerId}/calendar`);
-              } else {
-                navigate(-1);
-              }
+                if (fromManagerCalendar) {
+                  navigate(`/manager/calendar`);
+                } else if (fromCalendar && developerIdFromState) {
+                  navigate(`/developer/${developerIdFromState}/calendar`);
+                } else {
+                  navigate(-1);
+                }
             }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -484,3 +481,4 @@ export default function TaskDetailView() {
     </div>
   );
 }
+
