@@ -7,8 +7,11 @@ import DeveloperTaskList from "./pages/DeveloperTaskList";
 import DeveloperKanbanPage from "./pages/DeveloperKanbanPage";
 import DeveloperDashboard2 from "./pages/DeveloperDashboard2";
 import TaskDetailView from "./pages/TaskDetailView";
+import ManagerTaskDetailView from "./pages/ManagerTaskDetailView";
 import ManagerKPI from "./pages/ManagerKPI";
 import ManagerTaskList from "./pages/ManagerTaskList";
+import DeveloperCalendarPage from "./pages/DeveloperCalendarPage";
+import ManagerCalendarPage from "./pages/ManagerCalendarPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +31,14 @@ export const router = createBrowserRouter([
     Component: ManagerKPI,
   },
   {
+    path: "/manager/calendar",
+    Component: ManagerCalendarPage,
+  },
+  {
+    path: "/manager/task/:taskId",
+    Component: ManagerTaskDetailView,
+  },
+  {
     path: "/developer/:developerId",
     Component: DeveloperTaskList,
   },
@@ -38,6 +49,10 @@ export const router = createBrowserRouter([
   {
     path: "/developer/:developerId/kpi",
     Component: DeveloperDashboard2,
+  },
+  {
+    path: "/developer/:developerId/calendar",
+    Component: DeveloperCalendarPage,
   },
   {
     path: "/developer/task/:taskId",

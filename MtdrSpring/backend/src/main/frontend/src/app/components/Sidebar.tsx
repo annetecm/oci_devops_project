@@ -6,6 +6,7 @@ import {
   KanbanSquare,
   ListTodo,
   Sparkles,
+  Calendar,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,12 +22,14 @@ export default function Sidebar({ isOpen, onClose, userRole }: SidebarProps) {
   const managerLinks = [
     { to: '/manager', label: 'Task List', icon: ListTodo },
     { to: '/manager/kanban', label: 'Kanban Board', icon: KanbanSquare },
+    { to: '/manager/calendar', label: 'Calendar', icon: Calendar },
     { to: '/manager/kpi', label: 'KPI Charts', icon: BarChart3 },
   ];
 
   const developerLinks = [
     { to: `/developer/${developerId}`, label: 'Dashboard', icon: LayoutDashboard },
     { to: `/developer/${developerId}/kanban`, label: 'Kanban Board', icon: KanbanSquare },
+    { to: `/developer/${developerId}/calendar`, label: 'Calendar', icon: Calendar },
     { to: `/developer/${developerId}/kpi`, label: 'KPI Charts', icon: BarChart3 },
   ];
 
