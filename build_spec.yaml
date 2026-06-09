@@ -49,6 +49,14 @@ steps:
       export PATH=$JAVA_HOME/bin:$PATH
       cd MtdrSpring
       source env.sh
+
+      # Ensure DOCKER_REGISTRY is available for build.sh
+      if [ -z "${DOCKER_REGISTRY:-}" ]; then
+        export DOCKER_REGISTRY=$(cat state/DOCKER_REGISTRY)
+      fi
+
+      echo "Using DOCKER_REGISTRY=$DOCKER_REGISTRY"
+
       cd backend
       source build.sh
 
