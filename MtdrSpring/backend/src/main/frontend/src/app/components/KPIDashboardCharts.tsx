@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ComposedChart,
   Bar,
@@ -78,6 +78,44 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
 
   // Only true when NO sprint/dev filter active
   const isGroupedMode = selectedDeveloper === 'all' && selectedSprint === 'all';
+
+  // Summary KPIs computed from currently visible tasks (respecting sprint and developer filters)
+  const summary = useMemo(() => {
+    const visible = backendTasks.filter(t => {
+      if (selectedSprint !== 'all' && t.sprint !== parseInt(selectedSprint)) return false;
+      if (selectedDeveloper !== 'all' && String(t.developerID) !== selectedDeveloper) return false;
+      return true;
+    });
+
+    const totalCompleted = visible.filter(t => t.status === 'closed').length;
+    const totalHours = visible.reduce((s, t) => s + (t.timeSpent ?? 0), 0);
+
+    const activeDevs = selectedDeveloper === 'all' ? developers : developers.filter(d => d.id === selectedDeveloper);
+    const perDevTasks = activeDevs.map(d => visible.filter(t => String(t.developerID) === d.id).length);
+    const perDevHours = activeDevs.map(d => visible.filter(t => String(t.developerID) === d.id).reduce((s, t) => s + (t.timeSpent ?? 0), 0));
+
+    const avg = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+    const median = (arr: number[]) => {
+      if (!arr.length) return 0;
+      const a = [...arr].sort((x, y) => x - y);
+      const mid = Math.floor(a.length / 2);
+      return a.length % 2 === 1 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+    };
+
+    const avgTasksPerDev = avg(perDevTasks);
+    const avgHoursPerDev = avg(perDevHours);
+    const medianTasksPerDev = median(perDevTasks);
+    const medianHoursPerDev = median(perDevHours);
+
+    return {
+      totalCompleted,
+      totalHours,
+      avgTasksPerDev,
+      avgHoursPerDev,
+      medianTasksPerDev,
+      medianHoursPerDev,
+    };
+  }, [backendTasks, developers, selectedSprint, selectedDeveloper]);
 
  
   const buildGroupedData = (flatData: ChartDataItem[], metricKey: string, trendKey: string): ChartDataItem[] => {
@@ -449,6 +487,39 @@ export default function KPIDashboardCharts({ showTeamOverview = true, developerI
               <SelectItem value="line">Line Only</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      {/* KPI Summary Boxes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Completed Tasks</div>
+          <div className="text-2xl font-bold text-slate-900">{summary.totalCompleted}</div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Total Real Hours</div>
+          <div className="text-2xl font-bold text-slate-900">{summary.totalHours}h</div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Avg Tasks / Developer</div>
+          <div className="text-2xl font-bold text-slate-900">{Number(summary.avgTasksPerDev.toFixed(1))}</div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Avg Hours / Developer</div>
+          <div className="text-2xl font-bold text-slate-900">{Number(summary.avgHoursPerDev.toFixed(1))}h</div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Median Tasks / Developer</div>
+          <div className="text-2xl font-bold text-slate-900">{Number(summary.medianTasksPerDev.toFixed(1))}</div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div className="text-sm text-slate-500">Median Hours / Developer</div>
+          <div className="text-2xl font-bold text-slate-900">{Number(summary.medianHoursPerDev.toFixed(1))}h</div>
         </div>
       </div>
 
