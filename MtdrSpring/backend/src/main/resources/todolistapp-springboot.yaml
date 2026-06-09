@@ -14,7 +14,7 @@ spec:
   selector:
     app: todolistapp-springboot
 ---
-#this is new stuff for hosting on the load balancer
+# Internal backend router service
 apiVersion: v1
 kind: Service
 metadata:
@@ -46,8 +46,8 @@ spec:
         - name: todolistapp-springboot
           image: mx-queretaro-1.ocir.io/axij8uqyfn7v/reacttodo/p0r1y/todolistapp-springboot:0.1
           imagePullPolicy: Always
+
           env:
-            # ── Database ──────────────────────────────────────────────
             - name: db_user
               valueFrom:
                 secretKeyRef:
@@ -70,7 +70,6 @@ spec:
             - name: OCI_REGION
               value: "%OCI_REGION%"
 
-            # ── Frontend auth ─────────────────────────────────────────
             - name: ui_username
               value: "%UI_USERNAME%"
             - name: ui_password
@@ -80,7 +79,6 @@ spec:
                   key: password
                   optional: true
 
-            # ── Gemini API ────────────────────────────────────────────
             - name: gemini.api.key
               valueFrom:
                 secretKeyRef:
@@ -107,7 +105,6 @@ spec:
                   name: app-secrets
                   key: gemini-temperature
 
-            # ── Deepseek API ──────────────────────────────────────────
             - name: deepseek.api.key
               valueFrom:
                 secretKeyRef:
@@ -119,7 +116,6 @@ spec:
                   name: app-secrets
                   key: deepseek-api-url
 
-            # ── Telegram Bot ──────────────────────────────────────────
             - name: telegram.bot.token
               valueFrom:
                 secretKeyRef:
@@ -131,7 +127,6 @@ spec:
                   name: app-secrets
                   key: telegram-bot-name
 
-            # ── Email / SMTP ──────────────────────────────────────────
             - name: spring.mail.host
               value: "smtp.gmail.com"
             - name: spring.mail.port
@@ -148,7 +143,6 @@ spec:
             - name: spring.mail.properties.mail.smtp.starttls.enable
               value: "true"
 
-            # ── Telegram Bot task defaults ────────────────────────────
             - name: bot.task.defaultProjectId
               value: "1"
             - name: bot.task.defaultDeveloperId
@@ -162,7 +156,6 @@ spec:
             - name: bot.task.defaultDeadlineDays
               value: "7"
 
-            # ── Oracle Vector ─────────────────────────────────────────
             - name: oracle.vector.embedding-model
               value: "ALL_MINILM_L12_V2"
 
@@ -202,10 +195,12 @@ spec:
             failureThreshold: 3
 
       restartPolicy: Always
+
       volumes:
         - name: creds
           secret:
             secretName: db-wallet-secret
+
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -213,4 +208,3 @@ spec:
           labelSelector:
             matchLabels:
               app: todolistapp-springboot
----
