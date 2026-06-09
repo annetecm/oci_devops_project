@@ -192,9 +192,21 @@ export default function TaskDetailView() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="px-8 py-4">
-          <Button variant="ghost" className="mb-4 -ml-2 text-slate-600 hover:!bg-slate-100 hover:!text-slate-900" onClick={() => navigate(-1)}>
+          <Button 
+            variant="ghost" 
+            className="mb-4 -ml-2 text-slate-600 hover:!bg-slate-100 hover:!text-slate-900" 
+            onClick={() => {
+              if (fromManagerCalendar) {
+                navigate(`/manager/calendar`);
+              } else if (fromCalendar && developerId) {
+                navigate(`/developer/${developerId}/calendar`);
+              } else {
+                navigate(-1);
+              }
+            }}
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            {fromManagerCalendar ? 'Back to Calendar' : fromCalendar ? 'Back to Calendar' : 'Back to Dashboard'}
           </Button>
           <div className="flex items-start justify-between">
             <div className="flex-1">
