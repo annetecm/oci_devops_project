@@ -26,6 +26,7 @@ import {
   deleteTask,
 } from '../api/taskDataApi';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const priorityConfig = {
   high: { color: 'text-red-700', bgColor: 'bg-red-100 border-red-200', label: 'High Priority' },
@@ -48,12 +49,9 @@ function toBackendStatus(status: Status): string {
 export default function TaskDetailView() {
   const { taskId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const location = useLocation();
-  const locationState = location.state as { role?: string; fromCalendar?: boolean; fromManagerCalendar?: boolean; developerId?: string } | null;
-  const isReadOnly = locationState?.role === 'manager';
-  const fromCalendar = locationState?.fromCalendar ?? false;
-  const fromManagerCalendar = locationState?.fromManagerCalendar ?? false;
-  const developerId = locationState?.developerId;
+  const isReadOnly = (location.state as { role?: string } | null)?.role === 'manager';
   const [task, setTask] = useState<Task | null>(null);
   const [developers, setDevelopers] = useState<DeveloperSummary[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -62,6 +60,13 @@ export default function TaskDetailView() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auth guard: must be logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   // Edit state
   const [editTitle, setEditTitle] = useState('');
