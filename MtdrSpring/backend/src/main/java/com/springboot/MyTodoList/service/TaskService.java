@@ -141,7 +141,7 @@ public class TaskService {
     }
 
     public void deleteTask(int id) {
-        taskRepository.deleteCommentsByTaskId(id);
+    
         taskRepository.deleteTaskLogsByTaskId(id);
         taskRepository.deleteById(id);
     }

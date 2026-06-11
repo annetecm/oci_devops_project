@@ -43,9 +43,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
         "WHERE ta.telegramUserId = :telegramUserId", nativeQuery = true)
     Integer findDeveloperIdByTelegramUserId(@Param("telegramUserId") Long telegramUserId);
 
-    @Modifying
-    @Query(value = "DELETE FROM comments WHERE taskID = :taskId", nativeQuery = true)
-    void deleteCommentsByTaskId(@Param("taskId") int taskId);
+   
 
     @Modifying
     @Query(value = "DELETE FROM task_log WHERE taskID = :taskId", nativeQuery = true)
