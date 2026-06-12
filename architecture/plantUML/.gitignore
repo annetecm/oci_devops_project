@@ -4,3 +4,8 @@
 Controllers/*.puml
 Services/*.puml
 Repositories/*.puml
+
+# Allow generated PlantUML diagrams
+!architecture/plantUML/
+!architecture/plantUML/**
+!architecture/plantUML/**/*.puml
