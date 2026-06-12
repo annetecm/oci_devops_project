@@ -1,0 +1,17 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.ToDoItemController {
+	{field} -toDoItemService : com.springboot.MyTodoList.service.ToDoItemService
+	{method} +addToDoItem ( todoItem : com.springboot.MyTodoList.model.ToDoItem ) : org.springframework.http.ResponseEntity
+	{method} +deleteToDoItem ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +getAllToDoItems () : java.util.List
+	{method} +getToDoItemById ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +updateToDoItem ( toDoItem : com.springboot.MyTodoList.model.ToDoItem , id : int ) : org.springframework.http.ResponseEntity
+}
+
+
+
+
+
+
+@enduml

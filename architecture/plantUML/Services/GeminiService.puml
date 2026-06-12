@@ -1,0 +1,18 @@
+@startuml
+
+class com.springboot.MyTodoList.service.GeminiService {
+	{field} -apiUrl : String
+	{field} -httpClient : org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+	{field} {static} -logger : org.slf4j.Logger
+	{field} -maxOutputTokens : Integer
+	{field} -objectMapper : com.fasterxml.jackson.databind.ObjectMapper
+	{field} -temperature : Double
+	{method} +generateText ( prompt : String ) : String
+}
+
+
+
+
+
+
+@enduml

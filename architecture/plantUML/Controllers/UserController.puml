@@ -1,0 +1,18 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.UserController {
+	{field} -userService : com.springboot.MyTodoList.service.UserService
+	{method} +addUser ( newUser : com.springboot.MyTodoList.model.User ) : org.springframework.http.ResponseEntity
+	{method} +deleteUser ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +getAllUsers () : java.util.List
+	{method} +getUserById ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +test () : com.springboot.MyTodoList.model.User
+	{method} +updateUser ( user : com.springboot.MyTodoList.model.User , id : int ) : org.springframework.http.ResponseEntity
+}
+
+
+
+
+
+
+@enduml

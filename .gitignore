@@ -69,3 +69,8 @@ MtdrSpring/backend/src/main/resources/application.properties
 /package-lock.json
 /MtdrSpring/backend/package-lock.json
 
+# Allow generated PlantUML diagrams
+!architecture/plantUML/
+!architecture/plantUML/**
+!architecture/plantUML/**/*.puml
+

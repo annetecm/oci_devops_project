@@ -1,0 +1,36 @@
+@startuml
+
+class com.springboot.MyTodoList.service.TelegramSummaryService {
+	{field} {static} -MAX_PROMPT_MESSAGE_LENGTH : int
+	{field} {static} -MESSAGE_TIME_FORMATTER : java.time.format.DateTimeFormatter
+	{field} {static} -NONE_IDENTIFIED : String
+	{field} -geminiService : com.springboot.MyTodoList.service.GeminiService
+	{field} {static} -logger : org.slf4j.Logger
+	{field} -telegramAccountRepository : com.springboot.MyTodoList.repository.TelegramAccountRepository
+	{field} -telegramSummaryRepository : com.springboot.MyTodoList.repository.TelegramSummaryRepository
+	{method} -appendPromptMessage ( prompt : StringBuilder , message : com.springboot.MyTodoList.model.TelegramMessage , displayNamesByTelegramUserId : java.util.Map ) : void
+	{method} -appendSectionLine ( sectionName : String , line : String , summaryLines : java.util.List , decisionLines : java.util.List , actionItemLines : java.util.List ) : void
+	{method} +buildPrompt ( recentMessages : java.util.List , relatedMessages : java.util.List ) : String
+	{method} -cleanSectionText ( lines : java.util.List ) : String
+	{method} -collectTelegramUserIds ( target : java.util.LinkedHashSet , messages : java.util.List ) : void
+	{method} -detectSection ( line : String ) : String
+	{method} +generateAndSaveSummary ( chatId : Long , requestedByTelegramUserId : Long , windowSize : int , recentMessages : java.util.List ) : com.springboot.MyTodoList.model.TelegramSummary
+	{method} +generateAndSaveSummary ( chatId : Long , requestedByTelegramUserId : Long , windowSize : int , recentMessages : java.util.List , relatedMessages : java.util.List ) : com.springboot.MyTodoList.model.TelegramSummary
+	{method} -normalizeEmpty ( sectionText : String ) : String
+	{method} -normalizeHeadingText ( line : String ) : String
+	{method} -parseStructuredSections ( input : String ) : com.springboot.MyTodoList.service.TelegramSummaryService$ParsedSummary
+	{method} -parseSummary ( llmResponse : String ) : com.springboot.MyTodoList.service.TelegramSummaryService$ParsedSummary
+	{method} -resolveDisplayName ( telegramUserId : Long , displayNamesByTelegramUserId : java.util.Map ) : String
+	{method} -resolveDisplayNames ( recentMessages : java.util.List , relatedMessages : java.util.List ) : java.util.Map
+	{method} -sanitizeSectionLine ( line : String ) : String
+	{method} -stripSectionHeading ( line : String , sectionName : String ) : String
+	{method} -toNullableSection ( sectionText : String ) : String
+	{method} -truncateForPrompt ( text : String ) : String
+}
+
+
+
+
+
+
+@enduml

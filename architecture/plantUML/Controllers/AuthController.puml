@@ -1,0 +1,14 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.AuthController {
+	{field} -authService : com.springboot.MyTodoList.service.AuthService
+	{method} +login ( request : com.springboot.MyTodoList.dto.LoginRequest ) : org.springframework.http.ResponseEntity
+	{method} +verifyOtp ( request : com.springboot.MyTodoList.dto.OtpVerifyRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+
+
+
+
+@enduml

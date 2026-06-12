@@ -1,0 +1,16 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.Dashboardcontroller {
+	{field} -dashboardService : com.springboot.MyTodoList.service.DashboardService
+	{method} +getDeveloperDashboard ( developerID : Integer , projectID : Integer ) : org.springframework.http.ResponseEntity
+	{method} +getManagerDashboard ( projectID : Integer ) : org.springframework.http.ResponseEntity
+	{method} +getTask ( taskID : Integer ) : org.springframework.http.ResponseEntity
+	{method} +updateTask ( taskID : Integer , body : java.util.Map ) : org.springframework.http.ResponseEntity
+}
+
+
+
+
+
+
+@enduml

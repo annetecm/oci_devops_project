@@ -1,0 +1,18 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.TaskController {
+	{field} -taskService : com.springboot.MyTodoList.service.TaskService
+	{method} +createTask ( task : com.springboot.MyTodoList.model.Task ) : org.springframework.http.ResponseEntity
+	{method} +deleteTask ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +getTaskById ( id : int ) : org.springframework.http.ResponseEntity
+	{method} +getTasks () : java.util.List
+	{method} +updateTask ( id : int , updates : com.springboot.MyTodoList.model.Task ) : org.springframework.http.ResponseEntity
+	{method} +updateTaskStatus ( id : int , request : com.springboot.MyTodoList.dto.TaskStatusUpdateRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+
+
+
+
+@enduml

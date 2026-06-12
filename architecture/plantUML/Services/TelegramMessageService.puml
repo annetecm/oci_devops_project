@@ -1,0 +1,25 @@
+@startuml
+
+class com.springboot.MyTodoList.service.TelegramMessageService {
+	{field} {static} -MAX_EMBEDDING_TEXT_LENGTH : int
+	{field} -embeddingModelName : String
+	{field} -entityManager : jakarta.persistence.EntityManager
+	{field} {static} -logger : org.slf4j.Logger
+	{field} -telegramAccountRepository : com.springboot.MyTodoList.repository.TelegramAccountRepository
+	{field} -telegramMessageRepository : com.springboot.MyTodoList.repository.TelegramMessageRepository
+	{method} -buildInClausePlaceholders ( size : int ) : String
+	{method} +findRecentMessages ( chatId : Long , limit : int ) : java.util.List
+	{method} +findRelatedMessages ( chatId : Long , recentMessages : java.util.List , limit : int ) : java.util.List
+	{method} -populateEmbedding ( telegramMessageId : Long ) : void
+	{method} -sanitizeModelName ( modelName : String ) : String
+	{method} +saveIncomingMessage ( chatId : Long , messageId : Integer , telegramUserId : Long , messageText : String , telegramTimestamp : Integer ) : void
+	{method} -toLocalDateTime ( telegramTimestamp : Integer ) : java.time.LocalDateTime
+	{method} -truncateForEmbedding ( text : String ) : String
+}
+
+
+
+
+
+
+@enduml
