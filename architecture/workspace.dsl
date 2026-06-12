@@ -28,20 +28,48 @@ workspace "Synkra" "Architecture model for the Synkra project management platfor
                 webPortal   = container "Web Portal"            "Single-page application that provides role-based dashboards, task management views, and performance graphs for both Project Leaders and Developers." "React / JavaScript" "WebBrowser"
                 backendApi = container "Backend API" "Central REST API gateway exposing task management, dashboard, Telegram bot, and AI-assisted endpoints." "Java / Spring Boot" {
 
-                    authController = component "AuthController" "Handles authentication endpoints." "Spring REST Controller" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/AuthController.puml"
-                    taskController = component "TaskController" "Handles CRUD operations for tasks." "Spring REST Controller" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/TaskController.puml"
-                    dashboardController = component "Dashboardcontroller" "Provides dashboard and productivity statistics." "Spring REST Controller" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/DashboardController.puml"
-                    userController = component "UserController" "Handles user-related operations." "Spring REST Controller" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/UserController.puml"
-                    todoItemController = component "ToDoItemController" "Handles to-do item management." "Spring REST Controller" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/ToDoItemController.puml"
-                    todoItemBotController = component "ToDoItemBotController" "Telegram bot controller handling Telegram commands and interactions." "Spring Component" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Controllers/TodoItemBotController.puml"
-                    geminiService = component "GeminiService" "Communicates with Google Gemini for AI-generated summaries and task suggestions." "Spring Service" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Services/GeminiService.puml"
-                    telegramSummaryService = component "TelegramSummaryService" "Processes Telegram conversation history and generates summaries." "Spring Service" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Services/TelegramSummaryService.puml"
-                    telegramMessageService = component "TelegramMessageService" "Stores and retrieves Telegram chat messages." "Spring Service" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Services/TelegramMessageService.puml"
-                    userRepository = component "UserRepository" "Persistence access for users." "Spring Data JPA Repository" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Repositories/UserRepository.puml"
-                    taskRepository = component "TaskRepository" "Persistence access for tasks." "Spring Data JPA Repository" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Repositories/TaskRepository.puml"
-                    telegramMessageRepository = component "TelegramMessageRepository" "Persistence access for Telegram messages." "Spring Data JPA Repository" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Repositories/TelegramMessageRepository.puml"
-                    telegramSummaryRepository = component "TelegramSummaryRepository" "Persistence access for Telegram summaries." "Spring Data JPA Repository" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Repositories/TelegramSummaryRepository.puml"
-                    todoItemRepository = component "ToDoItemRepository" "Persistence access for to-do items." "Spring Data JPA Repository" "https://https://github.com/annetecm/oci_devops_project/architecture/plantUML/Repositories/ToDoItemRepository.puml"
+                    authController = component "AuthController" "Handles authentication endpoints." "Spring REST Controller" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/AuthController.puml"
+                    }
+                    taskController = component "TaskController" "Handles CRUD operations for tasks." "Spring REST Controller" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/TaskController.puml"
+                    }
+                    dashboardController = component "Dashboardcontroller" "Provides dashboard and productivity statistics." "Spring REST Controller" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/DashboardController.puml"
+                    }
+                    userController = component "UserController" "Handles user-related operations." "Spring REST Controller" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/UserController.puml"
+                    }
+                    todoItemController = component "ToDoItemController" "Handles to-do item management." "Spring REST Controller" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/ToDoItemController.puml"
+                    }
+                    todoItemBotController = component "ToDoItemBotController" "Telegram bot controller handling Telegram commands and interactions." "Spring Component" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Controllers/ToDoItemBotController.puml"
+                    }
+                    geminiService = component "GeminiService" "Communicates with Google Gemini for AI-generated summaries and task suggestions." "Spring Service" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Services/GeminiService.puml"
+                    }
+                    telegramSummaryService = component "TelegramSummaryService" "Processes Telegram conversation history and generates summaries." "Spring Service" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Services/TelegramSummaryService.puml"
+                    }
+                    telegramMessageService = component "TelegramMessageService" "Stores and retrieves Telegram chat messages." "Spring Service" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Services/TelegramMessageService.puml"
+                    }
+                    userRepository = component "UserRepository" "Persistence access for users." "Spring Data JPA Repository" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Repositories/UserRepository.puml"
+                    }
+                    taskRepository = component "TaskRepository" "Persistence access for tasks." "Spring Data JPA Repository" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Repositories/TaskRepository.puml"
+                    }
+                    telegramMessageRepository = component "TelegramMessageRepository" "Persistence access for Telegram messages." "Spring Data JPA Repository" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Repositories/TelegramMessageRepository.puml"
+                    }
+                    telegramSummaryRepository = component "TelegramSummaryRepository" "Persistence access for Telegram summaries." "Spring Data JPA Repository" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Repositories/TelegramSummaryRepository.puml"
+                    }
+                    todoItemRepository = component "ToDoItemRepository" "Persistence access for to-do items." "Spring Data JPA Repository" {
+                        url "https://github.com/annetecm/oci_devops_project/blob/main/architecture/plantUML/Repositories/ToDoItemRepository.puml"
+                    }
                 }
                 taskService = container "Task Service"          "Domain service encapsulating all task lifecycle logic: create, read, update, delete, and assignment. Enforces business rules such as developer-only task ownership." "Java / Spring Boot" 
                 aiService   = container "AI Processing Service" "Performs RAG-based NLP on conversation history using Oracle AI Vector Search with ALL-MiniLM-L6-v2 embeddings and Google Gemini for generation. Identifies task instructions and produces summaries." "Java / Spring Boot"
