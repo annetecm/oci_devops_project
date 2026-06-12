@@ -1,0 +1,6 @@
+# Generated PlantUML diagrams - these are auto-generated from source code
+# Regenerate by running: generate-diagrams.bat (Windows) or generate-diagrams.sh (Unix)
+
+Controllers/*.puml
+Services/*.puml
+Repositories/*.puml

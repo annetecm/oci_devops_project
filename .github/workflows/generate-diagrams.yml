@@ -1,0 +1,44 @@
+name: Generate PlantUML Diagrams
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 — Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history needed so the commit-back step can push
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 2 — Set up Java 17 (matches your pom.xml)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # Step 3 — Compile and run the diagram generator
+      - name: Generate PlantUML diagrams
+        working-directory: MtdrSpring/backend
+        run: |
+          mvn compile exec:java \
+            -Dexec.mainClass="com.springboot.MyTodoList.util.PlantUMLDiagramGenerator" \
+            -Dexec.classpathScope=compile
+
+      # Step 4 — Commit the generated .puml files back to the repo
+      - name: Commit generated diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: auto-generate PlantUML diagrams [skip ci]"
+          file_pattern: "architecture/plantUML/**/*.puml"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"

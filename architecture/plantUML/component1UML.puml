@@ -1,0 +1,107 @@
+# PlantUML Diagram Generation Configuration
+
+This directory contains PlantUML class diagrams for the OCI DevOps project components.
+
+## Level 3 Components Covered
+
+### Controllers (6 diagrams)
+- `Controllers/AuthController.puml` - Authentication controller
+- `Controllers/TaskController.puml` - Task management controller
+- `Controllers/DashboardController.puml` - Dashboard view controller
+- `Controllers/UserController.puml` - User management controller
+- `Controllers/ToDoItemController.puml` - ToDo item CRUD operations
+- `Controllers/ToDoItemBotController.puml` - Telegram bot integration
+
+### Services (3 diagrams)
+- `Services/GeminiService.puml` - Google Gemini AI integration
+- `Services/TelegramSummaryService.puml` - Telegram summary generation
+- `Services/TelegramMessageService.puml` - Telegram message handling
+
+### Repositories (5 diagrams)
+- `Repositories/UserRepository.puml` - User data persistence
+- `Repositories/TaskRepository.puml` - Task data persistence
+- `Repositories/TelegramMessageRepository.puml` - Telegram message storage
+- `Repositories/TelegramSummaryRepository.puml` - Telegram summary storage
+- `Repositories/ToDoItemRepository.puml` - ToDo item storage
+
+## Generating Diagrams
+
+To generate all Level 3 component diagrams, run the PlantUMLDiagramGenerator utility:
+
+```bash
+# From the backend directory
+cd MtdrSpring/backend
+
+# Compile the project (if not already compiled)
+mvn clean compile
+
+# Run the diagram generator
+mvn exec:java -Dexec.mainClass="com.springboot.MyTodoList.util.PlantUMLDiagramGenerator"
+```
+
+The generator will:
+1. Scan each component's Java package
+2. Generate PlantUML class diagrams for all classes in that package
+3. Save each diagram to its own `.puml` file in organized subdirectories
+4. Display generation status and any errors
+
+## Output Structure
+
+```
+architecture/plantUML/
+├── Controllers/
+│   ├── AuthController.puml
+│   ├── TaskController.puml
+│   ├── DashboardController.puml
+│   ├── UserController.puml
+│   ├── ToDoItemController.puml
+│   └── ToDoItemBotController.puml
+├── Services/
+│   ├── GeminiService.puml
+│   ├── TelegramSummaryService.puml
+│   └── TelegramMessageService.puml
+└── Repositories/
+    ├── UserRepository.puml
+    ├── TaskRepository.puml
+    ├── TelegramMessageRepository.puml
+    ├── TelegramSummaryRepository.puml
+    └── ToDoItemRepository.puml
+```
+
+## Technologies Used
+
+- **PlantUML**: Generates UML diagrams from text
+- **plantuml-generator-util**: Java utility library for automatic diagram generation from source code
+- Maven plugin: `exec-maven-plugin` for running the generator
+
+## Integration with Maven Build
+
+To automatically generate diagrams during the Maven build process, add the following to your `pom.xml`:
+
+```xml
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>exec-maven-plugin</artifactId>
+    <version>3.1.0</version>
+    <executions>
+        <execution>
+            <id>generate-plantuml-diagrams</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>java</goal>
+            </goals>
+            <configuration>
+                <mainClass>com.springboot.MyTodoList.util.PlantUMLDiagramGenerator</mainClass>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+## Customization
+
+To modify which components are included or change output locations, edit:
+- `MtdrSpring/backend/src/main/java/com/springboot/MyTodoList/util/PlantUMLDiagramGenerator.java`
+
+Update the `COMPONENTS` list to add, remove, or modify component configurations.
+

@@ -19,6 +19,7 @@
                 <frontend-src-dir>${project.basedir}/src/main/frontend</frontend-src-dir>
                 <node.version>v23.9.0</node.version>
                 <npm.version>8.1.2</npm.version>
+                <plantuml-generator.version>3.0.1</plantuml-generator.version>
         </properties>
         <dependencies>
                 <dependency>
@@ -115,6 +116,11 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter-mail</artifactId>
                 </dependency>
+                <dependency>
+                        <groupId>de.elnarion.util</groupId>
+                        <artifactId>plantuml-generator-util</artifactId>
+                        <version>${plantuml-generator.version}</version>
+                </dependency>
         </dependencies>
         <build>
                 <plugins>
@@ -173,6 +179,25 @@
                                                                         <filtering>false</filtering>
                                                                 </resource>
                                                         </resources>
+                                                </configuration>
+                                        </execution>
+                                </executions>
+                        </plugin>
+                        <!-- PlantUML Diagram Generator Plugin -->
+                        <plugin>
+                                <groupId>org.codehaus.mojo</groupId>
+                                <artifactId>exec-maven-plugin</artifactId>
+                                <version>3.1.0</version>
+                                <executions>
+                                        <execution>
+                                                <id>generate-plantuml-diagrams</id>
+                                                <goals>
+                                                        <goal>java</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <mainClass>com.springboot.MyTodoList.util.PlantUMLDiagramGenerator</mainClass>
+                                                        <arguments/>
+                                                        <classpathScope>compile</classpathScope>
                                                 </configuration>
                                         </execution>
                                 </executions>
