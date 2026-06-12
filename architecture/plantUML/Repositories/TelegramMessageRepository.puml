@@ -1,0 +1,13 @@
+@startuml
+
+interface com.springboot.MyTodoList.repository.TelegramMessageRepository {
+	{method}  {abstract} +existsByChatIdAndMessageId ( chatId : Long , messageId : Integer ) : boolean
+	{method}  {abstract} +findByChatIdOrderByCreatedAtDescMessageIdDesc ( chatId : Long , pageable : org.springframework.data.domain.Pageable ) : java.util.List
+}
+
+
+
+
+
+
+@enduml

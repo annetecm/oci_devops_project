@@ -1,0 +1,23 @@
+@startuml
+
+class com.springboot.MyTodoList.controller.ToDoItemBotController {
+	{field} -botProps : com.springboot.MyTodoList.config.BotProps
+	{field} -geminiService : com.springboot.MyTodoList.service.GeminiService
+	{field} {static} -logger : org.slf4j.Logger
+	{field} -taskService : com.springboot.MyTodoList.service.TaskService
+	{field} -telegramClient : org.telegram.telegrambots.meta.generics.TelegramClient
+	{field} -telegramMessageService : com.springboot.MyTodoList.service.TelegramMessageService
+	{field} -telegramSummaryService : com.springboot.MyTodoList.service.TelegramSummaryService
+	{field} -toDoItemService : com.springboot.MyTodoList.service.ToDoItemService
+	{method} +afterRegistration ( botSession : org.telegram.telegrambots.longpolling.BotSession ) : void
+	{method} +consume ( update : org.telegram.telegrambots.meta.api.objects.Update ) : void
+	{method} +getBotToken () : String
+	{method} +getUpdatesConsumer () : org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer
+}
+
+
+
+
+
+
+@enduml

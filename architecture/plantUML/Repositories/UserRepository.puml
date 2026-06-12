@@ -1,0 +1,11 @@
+@startuml
+
+interface com.springboot.MyTodoList.repository.UserRepository {
+}
+
+
+
+
+
+
+@enduml

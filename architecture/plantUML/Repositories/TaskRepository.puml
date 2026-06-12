@@ -1,0 +1,17 @@
+@startuml
+
+interface com.springboot.MyTodoList.repository.TaskRepository {
+	{method}  {abstract} +countDeveloperByTelegramUserId ( telegramUserId : Long ) : long
+	{method}  {abstract} +countTelegramAccountByTelegramUserId ( telegramUserId : Long ) : long
+	{method}  {abstract} +deleteTaskLogsByTaskId ( taskId : int ) : void
+	{method}  {abstract} +findDeveloperIdByTelegramUserId ( telegramUserId : Long ) : Integer
+	{method}  {abstract} +findPendingTasks () : java.util.List
+	{method}  {abstract} +findPendingTasksByTelegramUserId ( telegramUserId : Long ) : java.util.List
+}
+
+
+
+
+
+
+@enduml
