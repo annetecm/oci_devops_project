@@ -1,5 +1,2 @@
 # Local-only artifacts
-.env
-downloads/
-test-results/
 playwright-report/

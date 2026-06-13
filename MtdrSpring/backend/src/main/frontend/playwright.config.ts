@@ -23,7 +23,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:8080',
-    trace: 'on',
+    trace: 'off',
     screenshot: 'on',
     video: 'on',
   },
